@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 270 20% 8%;
+  --foreground: 0 0% 100%;
+  --card: 270 15% 12%;
+  --card-foreground: 0 0% 100%;
+  --primary: 280 100% 50%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 180 100% 50%;
+  --accent: 290 100% 60%;
+  --muted: 270 10% 20%;
+  --muted-foreground: 270 5% 65%;
+  --border: 270 15% 25%;
+  --input: 270 15% 20%;
+  --ring: 280 100% 50%;
+  --radius: 1rem;
+}
+
+body {
+  @apply min-h-screen bg-background text-foreground antialiased;
+  font-family: "Sora", "Segoe UI", sans-serif;
+  background: linear-gradient(135deg, 
+    hsl(270, 20%, 8%) 0%, 
+    hsl(260, 25%, 10%) 25%, 
+    hsl(280, 20%, 12%) 50%, 
+    hsl(270, 15%, 10%) 75%, 
+    hsl(265, 25%, 9%) 100%);
+  background-attachment: fixed;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#root {
+  @apply min-h-screen relative;
+  z-index: 1;
+}
+
+/* Glassmorphism base */
+.glass-effect {
+  @apply backdrop-blur-xl bg-white/5 border border-white/10;
+}
+
+/* Smooth transitions */
+* {
+  @apply transition-all duration-300 ease-out;
+}
+
+button, a {
+  @apply transition-all duration-200 ease-out;
+}
