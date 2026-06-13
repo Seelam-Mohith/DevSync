@@ -128,7 +128,7 @@ const CodingProfileMetrics = ({ activities = [], stats = {} }) => {
       >
         <h2 className="text-3xl font-bold text-white flex items-center gap-2">
           <Zap className="w-8 h-8 text-blue-400" />
-          Dev Sync
+          GitHub Stats
         </h2>
       </motion.div>
 

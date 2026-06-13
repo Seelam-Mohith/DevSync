@@ -71,6 +71,7 @@ const StatsCards = ({ stats }) => {
       subtitle: "Peak coding day",
       trend: "Most productive",
     },
+
   ];
 
   return (
