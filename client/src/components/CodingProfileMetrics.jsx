@@ -1,11 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Flame, Target, ChevronLeft, ChevronRight } from "lucide-react";
+import { Flame, Target, ChevronLeft, ChevronRight, User } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 
-const CodingProfileMetrics = ({ activities = [], githubStats = {} }) => {
+const CodingProfileMetrics = ({ activities = [], githubStats = {}, githubUsername = "" }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const totalContributions = githubStats?.totalContributions ?? 0;
+  const handleLabel = githubStats?.username
+    ? `@${githubStats.username}`
+    : githubUsername
+      ? `@${githubUsername}`
+      : "GitHub unavailable";
   const totalRepositories = githubStats?.totalRepositories ?? 0;
 
   const generateMonthCalendar = (date) => {
@@ -113,18 +117,18 @@ const CodingProfileMetrics = ({ activities = [], githubStats = {} }) => {
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 group-hover:from-emerald-500/20 group-hover:to-cyan-500/20 transition-all duration-300" />
             <CardHeader className="pb-3 relative z-10">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm text-slate-200">Contributions</CardTitle>
-                <Target className="h-5 w-5 text-cyan-400" />
+                <CardTitle className="text-sm text-slate-200">GitHub Handle</CardTitle>
+                <User className="h-5 w-5 text-cyan-400" />
               </div>
             </CardHeader>
             <CardContent className="relative z-10">
               <motion.p
-                className="text-4xl font-bold text-white"
+                className="text-2xl md:text-3xl font-bold text-white break-words"
                 initial={{ scale: 0.8 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 200 }}
               >
-                {totalContributions}
+                {handleLabel}
               </motion.p>
             </CardContent>
           </Card>

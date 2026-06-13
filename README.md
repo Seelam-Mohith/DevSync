@@ -16,8 +16,7 @@ Modern MERN app with a pure React frontend and Express backend.
 1. Go to `server/`
 2. Copy `.env.example` to `.env`
 3. Fill in MongoDB Atlas and JWT values
-4. Optional: add `GITHUB_TOKEN` if you want GitHub contribution counts via GraphQL
-5. Run:
+4. Run:
 
 ```bash
 npm install

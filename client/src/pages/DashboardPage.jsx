@@ -159,11 +159,6 @@ const DashboardPage = () => {
               Fetching GitHub profile data for {githubUsername}...
             </div>
           )}
-          {githubStats && githubUsername && githubStats.contributionsAvailable === false && (
-            <div className="rounded-xl border border-sky-500/30 bg-gradient-to-r from-sky-500/10 to-sky-500/5 backdrop-blur p-4 text-sm text-sky-300 mt-2">
-              GitHub repositories are live, but contribution totals need `GITHUB_TOKEN` in `server/.env`.
-            </div>
-          )}
         </motion.div>
 
         <motion.div
@@ -181,7 +176,11 @@ const DashboardPage = () => {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <CodingProfileMetrics activities={activities} githubStats={githubStats} />
+            <CodingProfileMetrics
+              activities={activities}
+              githubStats={githubStats}
+              githubUsername={githubUsername}
+            />
           </motion.div>
         </motion.div>
       </main>
