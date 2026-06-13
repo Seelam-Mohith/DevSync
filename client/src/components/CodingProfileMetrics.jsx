@@ -121,9 +121,9 @@ const CodingProfileMetrics = ({ activities = [], githubStats = {}, githubUsernam
                 <User className="h-5 w-5 text-cyan-400" />
               </div>
             </CardHeader>
-            <CardContent className="relative z-10">
+            <CardContent className="relative z-10 pb-8">
               <motion.p
-                className="text-2xl md:text-3xl font-bold text-white break-words"
+                className="text-xl md:text-2xl font-bold text-white break-words"
                 initial={{ scale: 0.8 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 200 }}
