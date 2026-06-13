@@ -146,7 +146,7 @@ const CodingProfileMetrics = ({ activities = [], stats = {} }) => {
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 group-hover:from-emerald-500/20 group-hover:to-cyan-500/20 transition-all duration-300" />
             <CardHeader className="pb-3 relative z-10">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm text-slate-200">Total Problems Solved</CardTitle>
+                <CardTitle className="text-sm text-slate-200">Contributions</CardTitle>
                 <Target className="h-5 w-5 text-cyan-400" />
               </div>
             </CardHeader>
@@ -159,7 +159,6 @@ const CodingProfileMetrics = ({ activities = [], stats = {} }) => {
               >
                 {totalProblemsSolved}
               </motion.p>
-              <p className="mt-2 text-xs text-muted-foreground">LeetCode problems solved</p>
             </CardContent>
           </Card>
         </motion.div>
@@ -169,7 +168,7 @@ const CodingProfileMetrics = ({ activities = [], stats = {} }) => {
             <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-pink-500/10 group-hover:from-orange-500/20 group-hover:to-pink-500/20 transition-all duration-300" />
             <CardHeader className="pb-3 relative z-10">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm text-slate-200">Current Streak</CardTitle>
+                <CardTitle className="text-sm text-slate-200">Total Repositories</CardTitle>
                 <Flame className="h-5 w-5 text-orange-400" />
               </div>
             </CardHeader>
@@ -182,9 +181,6 @@ const CodingProfileMetrics = ({ activities = [], stats = {} }) => {
               >
                 {currentStreak}
               </motion.p>
-              <p className="mt-2 text-xs text-muted-foreground">
-                {currentStreak > 1 ? "days" : "day"} active
-              </p>
             </CardContent>
           </Card>
         </motion.div>
