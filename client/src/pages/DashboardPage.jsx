@@ -6,6 +6,7 @@ import StatsCards from "../components/StatsCards";
 import CodingProfileMetrics from "../components/CodingProfileMetrics";
 import api from "../lib/api";
 import useAuth from "../hooks/useAuth";
+import useGitHubStats from "../hooks/useGitHubStats";
 import useCodolioStats from "../hooks/useCodolioStats";
 import useLeetCodeStats from "../hooks/useLeetCodeStats";
 
@@ -16,6 +17,7 @@ const DashboardPage = () => {
   const [error, setError] = useState("");
   const [darkMode, setDarkMode] = useState(localStorage.getItem("devsync_theme") === "dark");
   const [codolioUsername, setCodolioUsername] = useState(localStorage.getItem("codolio_username") || "");
+  const githubUsername = user?.linkedAccounts?.github;
 
   // Fetch Codolio stats
   const {
@@ -35,6 +37,14 @@ const DashboardPage = () => {
     error: leetcodeError,
   } = useLeetCodeStats(leetcodeUsername, {
     autoFetch: !!leetcodeUsername,
+  });
+
+  const {
+    stats: githubStats,
+    loading: githubLoading,
+    error: githubError,
+  } = useGitHubStats(githubUsername, {
+    autoFetch: !!githubUsername,
   });
 
   useEffect(() => {
@@ -129,6 +139,11 @@ const DashboardPage = () => {
               Could not fetch LeetCode stats. Error: {leetcodeError}
             </div>
           )}
+          {githubError && (
+            <div className="rounded-xl border border-yellow-500/30 bg-gradient-to-r from-yellow-500/10 to-yellow-500/5 backdrop-blur p-4 text-sm text-yellow-400">
+              Could not fetch GitHub stats. Error: {githubError}
+            </div>
+          )}
           {codolioLoading && codolioUsername && (
             <div className="rounded-xl border border-blue-500/30 bg-gradient-to-r from-blue-500/10 to-blue-500/5 backdrop-blur p-4 text-sm text-blue-400">
               Fetching Codolio profile data for {codolioUsername}...
@@ -137,6 +152,16 @@ const DashboardPage = () => {
           {leetcodeLoading && leetcodeUsername && (
             <div className="rounded-xl border border-blue-500/30 bg-gradient-to-r from-blue-500/10 to-blue-500/5 backdrop-blur p-4 text-sm text-blue-400 mt-2">
               Fetching LeetCode profile data for {leetcodeUsername}...
+            </div>
+          )}
+          {githubLoading && githubUsername && (
+            <div className="rounded-xl border border-blue-500/30 bg-gradient-to-r from-blue-500/10 to-blue-500/5 backdrop-blur p-4 text-sm text-blue-400 mt-2">
+              Fetching GitHub profile data for {githubUsername}...
+            </div>
+          )}
+          {githubStats && githubUsername && githubStats.contributionsAvailable === false && (
+            <div className="rounded-xl border border-sky-500/30 bg-gradient-to-r from-sky-500/10 to-sky-500/5 backdrop-blur p-4 text-sm text-sky-300 mt-2">
+              GitHub repositories are live, but contribution totals need `GITHUB_TOKEN` in `server/.env`.
             </div>
           )}
         </motion.div>
@@ -156,7 +181,7 @@ const DashboardPage = () => {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <CodingProfileMetrics activities={activities} stats={mergedStats} />
+            <CodingProfileMetrics activities={activities} githubStats={githubStats} />
           </motion.div>
         </motion.div>
       </main>

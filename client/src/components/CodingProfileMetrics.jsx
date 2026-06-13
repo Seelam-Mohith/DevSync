@@ -1,45 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Flame, Target, ChevronLeft, ChevronRight, Zap } from "lucide-react";
+import { Flame, Target, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 
-const CodingProfileMetrics = ({ activities = [], stats = {} }) => {
+const CodingProfileMetrics = ({ activities = [], githubStats = {} }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
-
-  const totalProblemsSolved = stats?.totalProblems ?? activities.length;
-
-  const calculateStreak = () => {
-    if (!activities.length) return 0;
-    const sortedActivities = [...activities].sort(
-      (a, b) => new Date(b.date) - new Date(a.date)
-    );
-
-    let streak = 0;
-    const today = new Date();
-    let currentDateCheck = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-
-    for (const activity of sortedActivities) {
-      const activityDate = new Date(
-        new Date(activity.date).getFullYear(),
-        new Date(activity.date).getMonth(),
-        new Date(activity.date).getDate()
-      );
-
-      const dayDiff = Math.floor(
-        (currentDateCheck - activityDate) / (1000 * 60 * 60 * 24)
-      );
-
-      if (dayDiff === streak) {
-        streak++;
-      } else if (dayDiff > streak) {
-        break;
-      }
-    }
-
-    return streak;
-  };
-
-  const currentStreak = calculateStreak();
+  const totalContributions = githubStats?.totalContributions ?? 0;
+  const totalRepositories = githubStats?.totalRepositories ?? 0;
 
   const generateMonthCalendar = (date) => {
     const activityMap = new Map();
@@ -157,7 +124,7 @@ const CodingProfileMetrics = ({ activities = [], stats = {} }) => {
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 200 }}
               >
-                {totalProblemsSolved}
+                {totalContributions}
               </motion.p>
             </CardContent>
           </Card>
@@ -179,7 +146,7 @@ const CodingProfileMetrics = ({ activities = [], stats = {} }) => {
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 200 }}
               >
-                {currentStreak}
+                {totalRepositories}
               </motion.p>
             </CardContent>
           </Card>
