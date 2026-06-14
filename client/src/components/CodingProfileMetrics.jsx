@@ -3,7 +3,7 @@ import { Flame, Target, ChevronLeft, ChevronRight, User } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 
-const CodingProfileMetrics = ({ activities = [], githubStats = {}, githubUsername = "" }) => {
+const CodingProfileMetrics = ({ activities = [], githubStats = {}, githubUsername = "", leetcodeStats = {} }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const handleLabel = githubStats?.username
     ? `@${githubStats.username}`
@@ -12,15 +12,24 @@ const CodingProfileMetrics = ({ activities = [], githubStats = {}, githubUsernam
       : "GitHub unavailable";
   const totalRepositories = githubStats?.totalRepositories ?? 0;
 
+  const submissionCalendar = leetcodeStats?.submissionCalendar;
+
   const generateMonthCalendar = (date) => {
     const activityMap = new Map();
-    activities.forEach((activity) => {
-      const dateStr = new Date(activity.date)
-        .toISOString()
-        .split("T")[0];
-      const intensity = activity.commits + activity.prs + activity.reviews;
-      activityMap.set(dateStr, intensity);
-    });
+
+    if (submissionCalendar && Object.keys(submissionCalendar).length > 0) {
+      Object.entries(submissionCalendar).forEach(([dateStr, count]) => {
+        activityMap.set(dateStr, count);
+      });
+    } else {
+      activities.forEach((activity) => {
+        const dateStr = new Date(activity.date)
+          .toISOString()
+          .split("T")[0];
+        const intensity = activity.commits + activity.prs + activity.reviews;
+        activityMap.set(dateStr, intensity);
+      });
+    }
 
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -162,7 +171,7 @@ const CodingProfileMetrics = ({ activities = [], githubStats = {}, githubUsernam
         <Card glow className="overflow-hidden">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Submission Intensity</CardTitle>
+              <CardTitle>{submissionCalendar && Object.keys(submissionCalendar).length > 0 ? "LeetCode Submission Intensity" : "Submission Intensity"}</CardTitle>
               <div className="flex items-center gap-2">
                 <motion.button
                   whileHover={{ scale: 1.1 }}
@@ -192,11 +201,7 @@ const CodingProfileMetrics = ({ activities = [], githubStats = {}, githubUsernam
             </div>
           </CardHeader>
           <CardContent>
-            {!activities.length ? (
-              <p className="text-sm text-muted-foreground">
-                No activity data available. Start solving problems to see your heatmap!
-              </p>
-            ) : (
+            {submissionCalendar && Object.keys(submissionCalendar).length > 0 || activities.length > 0 ? (
               <div className="space-y-4">
                 {/* Day of week headers */}
                 <div className="grid grid-cols-7 gap-2">
@@ -259,6 +264,12 @@ const CodingProfileMetrics = ({ activities = [], githubStats = {}, githubUsernam
                   </div>
                 </div>
               </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {leetcodeStats?.username
+                  ? "No submission data available. Start solving problems to see your heatmap!"
+                  : "No activity data available. Start solving problems to see your heatmap!"}
+              </p>
             )}
           </CardContent>
         </Card>

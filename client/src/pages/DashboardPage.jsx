@@ -180,6 +180,7 @@ const DashboardPage = () => {
               activities={activities}
               githubStats={githubStats}
               githubUsername={githubUsername}
+              leetcodeStats={leetcodeStats}
             />
           </motion.div>
         </motion.div>

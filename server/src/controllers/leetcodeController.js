@@ -77,11 +77,21 @@ const getLeetCodeStats = async (req, res) => {
     // Calculate Current Streak and Active Days
     let currentStreak = 0;
     let totalActiveDays = 0;
+    let submissionCalendar = {};
     if (data.matchedUser.submissionCalendar) {
       try {
         const calendar = JSON.parse(data.matchedUser.submissionCalendar);
         const timestamps = Object.keys(calendar).map(Number);
         
+        // Build a date-keyed calendar for the frontend heatmap
+        submissionCalendar = Object.fromEntries(
+          Object.entries(calendar).map(([ts, count]) => {
+            const date = new Date(Number(ts) * 1000);
+            const dateStr = date.toISOString().split("T")[0];
+            return [dateStr, count];
+          })
+        );
+
         if (timestamps.length > 0) {
           const now = Math.floor(Date.now() / 1000);
           const SECONDS_IN_DAY = 86400;
@@ -118,13 +128,13 @@ const getLeetCodeStats = async (req, res) => {
       acceptanceRate,
       currentStreak,
       totalActiveDays,
+      submissionCalendar,
       // You can also include breakdown by difficulty if needed:
       difficultyBreakdown: {
         easy: stats.acSubmissionNum.find((item) => item.difficulty === "Easy")?.count || 0,
         medium: stats.acSubmissionNum.find((item) => item.difficulty === "Medium")?.count || 0,
         hard: stats.acSubmissionNum.find((item) => item.difficulty === "Hard")?.count || 0,
       },
-      raw: data, // Include raw data just in case the frontend needs something else
     };
 
     return res.status(200).json({
