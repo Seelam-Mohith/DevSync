@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
 import UserCard from "../components/UserCard";
@@ -17,17 +18,27 @@ const DashboardPage = () => {
     stats: leetcodeStats,
     loading: leetcodeLoading,
     error: leetcodeError,
+    refetch: refetchLeetCode,
   } = useLeetCodeStats(leetcodeUsername, {
-    autoFetch: !!leetcodeUsername,
+    autoFetch: false,
   });
 
   const {
     stats: githubStats,
     loading: githubLoading,
     error: githubError,
+    refetch: refetchGitHub,
   } = useGitHubStats(githubUsername, {
-    autoFetch: !!githubUsername,
+    autoFetch: false,
   });
+
+  useEffect(() => {
+    if (leetcodeUsername) refetchLeetCode();
+  }, [leetcodeUsername]);
+
+  useEffect(() => {
+    if (githubUsername) refetchGitHub();
+  }, [githubUsername]);
 
   // Build stats object from user profile + fetched stats
   const displayStats = {
