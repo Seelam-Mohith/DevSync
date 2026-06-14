@@ -4,7 +4,6 @@ const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const leaderboardRoutes = require("./routes/leaderboardRoutes");
-const activityRoutes = require("./routes/activityRoutes");
 const leetcodeRoutes = require("./routes/leetcodeRoutes");
 const githubRoutes = require("./routes/githubRoutes");
 // const codolioRoutes = require("./routes/codolioRoutes"); // Disabled for Node.js 18 compatibility
@@ -76,7 +75,6 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
-app.use("/api/activity", activityRoutes);
 app.use("/api/leetcode", leetcodeRoutes);
 app.use("/api/github", githubRoutes);
 // app.use("/api/codolio", codolioRoutes); // Disabled for Node.js 18 compatibility

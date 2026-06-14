@@ -1,4 +1,5 @@
 const axios = require("axios");
+const User = require("../models/User");
 
 const GITHUB_API_BASE = "https://api.github.com";
 
@@ -13,7 +14,6 @@ const fetchProfile = async (username) => {
     headers: githubHeaders,
     timeout: 10000,
   });
-
   return response.data;
 };
 
@@ -29,6 +29,21 @@ const getGitHubStats = async (req, res) => {
     }
 
     const profile = await fetchProfile(username);
+
+    // Save stats to the requesting user's document
+    if (req.user) {
+      const user = await User.findById(req.user._id);
+      if (user) {
+        user.githubUsername = username;
+        user.totalRepositories = profile.public_repos ?? 0;
+        user.githubName = profile.name || "";
+        user.githubAvatarUrl = profile.avatar_url || "";
+        user.githubProfileUrl = profile.html_url || "";
+        user.githubBio = profile.bio || "";
+        user.githubLastFetched = new Date();
+        await user.save();
+      }
+    }
 
     return res.status(200).json({
       success: true,

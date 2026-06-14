@@ -1,36 +1,18 @@
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
 import UserCard from "../components/UserCard";
 import StatsCards from "../components/StatsCards";
 import CodingProfileMetrics from "../components/CodingProfileMetrics";
-import api from "../lib/api";
 import useAuth from "../hooks/useAuth";
 import useGitHubStats from "../hooks/useGitHubStats";
-import useCodolioStats from "../hooks/useCodolioStats";
 import useLeetCodeStats from "../hooks/useLeetCodeStats";
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  const [stats, setStats] = useState(null);
-  const [activities, setActivities] = useState([]);
-  const [error, setError] = useState("");
-  const [darkMode, setDarkMode] = useState(localStorage.getItem("devsync_theme") === "dark");
-  const [codolioUsername, setCodolioUsername] = useState(localStorage.getItem("codolio_username") || "");
-  const githubUsername = user?.linkedAccounts?.github;
 
-  // Fetch Codolio stats
-  const {
-    stats: codolioStats,
-    loading: codolioLoading,
-    error: codolioError,
-  } = useCodolioStats(codolioUsername, {
-    autoFetch: !!codolioUsername,
-    refetchInterval: 60000, // Refetch every 1 minute
-  });
+  const leetcodeUsername = user?.leetcodeUsername;
+  const githubUsername = user?.githubUsername;
 
-  // Fetch LeetCode stats
-  const leetcodeUsername = user?.linkedAccounts?.leetcode;
   const {
     stats: leetcodeStats,
     loading: leetcodeLoading,
@@ -47,47 +29,19 @@ const DashboardPage = () => {
     autoFetch: !!githubUsername,
   });
 
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", darkMode);
-    localStorage.setItem("devsync_theme", darkMode ? "dark" : "light");
-  }, [darkMode]);
-
-  useEffect(() => {
-    const loadDashboard = async () => {
-      setError("");
-      try {
-        const [statsRes, activityRes] = await Promise.all([
-          api.get("/user/stats"),
-          api.get("/activity"),
-        ]);
-        setStats(statsRes.data.stats);
-        setActivities(activityRes.data.activities || []);
-      } catch (requestError) {
-        setError(requestError?.response?.data?.message || "Failed to load dashboard");
-      }
-    };
-
-    loadDashboard();
-  }, []);
-
-  // Merge Codolio and LeetCode stats with existing stats
-  const mergedStats = {
-    ...stats,
-    ...(codolioStats && {
-      totalActiveDays: codolioStats.totalActiveDays,
-      currentStreak: codolioStats.currentStreak,
-      acceptanceRate: codolioStats.acceptanceRate,
-      mostUsedPlatform: codolioStats.mostUsedPlatform,
-      mostActiveDayIndex: codolioStats.mostActiveDayIndex,
-    }),
-    ...(leetcodeStats && {
-      totalSolved: leetcodeStats.totalSolved,
-      totalSubmissions: leetcodeStats.totalSubmissions,
-      ...(leetcodeStats.acceptanceRate > 0 && { acceptanceRate: leetcodeStats.acceptanceRate }),
-      ...(leetcodeStats.currentStreak > 0 && { currentStreak: leetcodeStats.currentStreak }),
-      ...(leetcodeStats.totalActiveDays > 0 && { totalActiveDays: leetcodeStats.totalActiveDays }),
-    })
+  // Build stats object from user profile + fetched stats
+  const displayStats = {
+    totalSolved: leetcodeStats?.totalSolved ?? user?.totalSolved ?? 0,
+    totalSubmissions: leetcodeStats?.totalSubmissions ?? user?.totalSubmissions ?? 0,
+    acceptanceRate: leetcodeStats?.acceptanceRate ?? user?.acceptanceRate ?? 0,
+    currentStreak: leetcodeStats?.currentStreak ?? user?.currentStreak ?? 0,
+    totalActiveDays: leetcodeStats?.totalActiveDays ?? user?.totalActiveDays ?? 0,
+    mostActiveDay: leetcodeStats?.mostActiveDay ?? user?.mostActiveDay ?? 0,
   };
+
+  // Submission calendar for the heatmap (from fetched leetcode stats or user profile)
+  const submissionCalendar =
+    leetcodeStats?.submissionCalendar || user?.submissionCalendar || {};
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -124,16 +78,6 @@ const DashboardPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          {error && (
-            <div className="rounded-xl border border-red-500/30 bg-gradient-to-r from-red-500/10 to-red-500/5 backdrop-blur p-4 text-sm text-red-400">
-              {error}
-            </div>
-          )}
-          {codolioError && (
-            <div className="rounded-xl border border-yellow-500/30 bg-gradient-to-r from-yellow-500/10 to-yellow-500/5 backdrop-blur p-4 text-sm text-yellow-400">
-              Could not fetch Codolio stats. Error: {codolioError}
-            </div>
-          )}
           {leetcodeError && (
             <div className="rounded-xl border border-yellow-500/30 bg-gradient-to-r from-yellow-500/10 to-yellow-500/5 backdrop-blur p-4 text-sm text-yellow-400">
               Could not fetch LeetCode stats. Error: {leetcodeError}
@@ -144,13 +88,8 @@ const DashboardPage = () => {
               Could not fetch GitHub stats. Error: {githubError}
             </div>
           )}
-          {codolioLoading && codolioUsername && (
-            <div className="rounded-xl border border-blue-500/30 bg-gradient-to-r from-blue-500/10 to-blue-500/5 backdrop-blur p-4 text-sm text-blue-400">
-              Fetching Codolio profile data for {codolioUsername}...
-            </div>
-          )}
           {leetcodeLoading && leetcodeUsername && (
-            <div className="rounded-xl border border-blue-500/30 bg-gradient-to-r from-blue-500/10 to-blue-500/5 backdrop-blur p-4 text-sm text-blue-400 mt-2">
+            <div className="rounded-xl border border-blue-500/30 bg-gradient-to-r from-blue-500/10 to-blue-500/5 backdrop-blur p-4 text-sm text-blue-400">
               Fetching LeetCode profile data for {leetcodeUsername}...
             </div>
           )}
@@ -172,15 +111,15 @@ const DashboardPage = () => {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <StatsCards stats={mergedStats} />
+            <StatsCards stats={displayStats} />
           </motion.div>
 
           <motion.div variants={itemVariants}>
             <CodingProfileMetrics
-              activities={activities}
+              submissionCalendar={submissionCalendar}
               githubStats={githubStats}
               githubUsername={githubUsername}
-              leetcodeStats={leetcodeStats}
+              leetcodeUsername={leetcodeUsername}
             />
           </motion.div>
         </motion.div>

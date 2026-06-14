@@ -8,13 +8,13 @@ import useAuth from "../hooks/useAuth";
 
 const AddAccountsModal = ({ isOpen, onClose }) => {
   const { user, updateUser } = useAuth();
-  
+
   const [accounts, setAccounts] = useState({
-    leetcode: user?.linkedAccounts?.leetcode || "",
-    github: user?.linkedAccounts?.github || "",
-    codolio: user?.linkedAccounts?.codolio || "",
+    leetcode: user?.leetcodeUsername || "",
+    github: user?.githubUsername || "",
+    codolio: user?.codolio || "",
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -34,13 +34,17 @@ const AddAccountsModal = ({ isOpen, onClose }) => {
 
     try {
       const { data } = await api.put("/user/profile", {
-        linkedAccounts: accounts,
+        leetcodeUsername: accounts.leetcode,
+        githubUsername: accounts.github,
       });
-      
-      updateUser({ linkedAccounts: data.user.linkedAccounts });
+
+      const updatedUser = data.user;
+      updateUser({
+        leetcodeUsername: updatedUser.leetcodeUsername,
+        githubUsername: updatedUser.githubUsername,
+      });
       setSuccess(true);
-      
-      // Close modal after short delay on success
+
       setTimeout(() => {
         onClose();
         setSuccess(false);
@@ -113,21 +117,6 @@ const AddAccountsModal = ({ isOpen, onClose }) => {
                       value={accounts.github}
                       onChange={handleChange}
                       placeholder="e.g. torvalds"
-                      className="bg-slate-950/50"
-                    />
-                  </div>
-
-                  {/* Codolio */}
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 text-sm font-medium text-slate-200">
-                      <Terminal size={16} className="text-blue-400" />
-                      Codolio Username
-                    </label>
-                    <Input
-                      name="codolio"
-                      value={accounts.codolio}
-                      onChange={handleChange}
-                      placeholder="e.g. stefan"
                       className="bg-slate-950/50"
                     />
                   </div>

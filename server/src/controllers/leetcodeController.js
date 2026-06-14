@@ -1,10 +1,6 @@
 const axios = require("axios");
+const User = require("../models/User");
 
-/**
- * @desc    Fetch LeetCode stats for a specific user
- * @route   GET /api/leetcode/:username
- * @access  Public (or Private depending on integration needs)
- */
 const getLeetCodeStats = async (req, res) => {
   try {
     const { username } = req.params;
@@ -38,10 +34,7 @@ const getLeetCodeStats = async (req, res) => {
 
     const response = await axios.post(
       "https://leetcode.com/graphql",
-      {
-        query,
-        variables: { username },
-      },
+      { query, variables: { username } },
       {
         headers: {
           "Content-Type": "application/json",
@@ -53,7 +46,6 @@ const getLeetCodeStats = async (req, res) => {
 
     const data = response.data.data;
 
-    // Check if user exists (matchedUser will be null if they don't exist)
     if (!data.matchedUser) {
       return res.status(404).json({
         success: false,
@@ -63,27 +55,24 @@ const getLeetCodeStats = async (req, res) => {
 
     const stats = data.matchedUser.submitStats;
 
-    // Find the 'All' difficulty to get total solved and total submissions
     const totalSolvedData = stats.acSubmissionNum.find((item) => item.difficulty === "All");
     const totalSubmissionsData = stats.totalSubmissionNum.find((item) => item.difficulty === "All");
 
     const totalSolved = totalSolvedData ? totalSolvedData.count : 0;
     const totalSubmissions = totalSubmissionsData ? totalSubmissionsData.submissions : 0;
-    
-    // Calculate Acceptance Rate
     const acSubmissions = totalSolvedData ? totalSolvedData.submissions : 0;
     const acceptanceRate = totalSubmissions > 0 ? parseFloat(((acSubmissions / totalSubmissions) * 100).toFixed(2)) : 0;
 
-    // Calculate Current Streak and Active Days
     let currentStreak = 0;
     let totalActiveDays = 0;
+    let mostActiveDay = 0;
     let submissionCalendar = {};
+
     if (data.matchedUser.submissionCalendar) {
       try {
         const calendar = JSON.parse(data.matchedUser.submissionCalendar);
         const timestamps = Object.keys(calendar).map(Number);
-        
-        // Build a date-keyed calendar for the frontend heatmap
+
         submissionCalendar = Object.fromEntries(
           Object.entries(calendar).map(([ts, count]) => {
             const date = new Date(Number(ts) * 1000);
@@ -92,22 +81,26 @@ const getLeetCodeStats = async (req, res) => {
           })
         );
 
+        // Most active day
+        const maxEntry = Object.entries(submissionCalendar).reduce((max, entry) =>
+          Number(entry[1]) > Number(max[1]) ? entry : max
+        , ["", 0]);
+        mostActiveDay = Number(maxEntry[1]) || 0;
+
         if (timestamps.length > 0) {
           const now = Math.floor(Date.now() / 1000);
           const SECONDS_IN_DAY = 86400;
-          
           const activeDays = new Set(timestamps.map(t => Math.floor(t / SECONDS_IN_DAY)));
           totalActiveDays = activeDays.size;
-          
+
           let today = Math.floor(now / SECONDS_IN_DAY);
-          
           if (activeDays.has(today)) {
             currentStreak = 1;
           } else if (activeDays.has(today - 1)) {
             currentStreak = 1;
             today = today - 1;
           }
-          
+
           if (currentStreak > 0) {
             let checkDay = today - 1;
             while (activeDays.has(checkDay)) {
@@ -121,6 +114,26 @@ const getLeetCodeStats = async (req, res) => {
       }
     }
 
+    // Save stats to the requesting user's document
+    if (req.user) {
+      const user = await User.findById(req.user._id);
+      if (user) {
+        user.leetcodeUsername = username;
+        user.totalSolved = totalSolved;
+        user.totalSubmissions = totalSubmissions;
+        user.acceptanceRate = acceptanceRate;
+        user.currentStreak = currentStreak;
+        user.totalActiveDays = totalActiveDays;
+        user.mostActiveDay = mostActiveDay;
+        user.easySolved = stats.acSubmissionNum.find((item) => item.difficulty === "Easy")?.count || 0;
+        user.mediumSolved = stats.acSubmissionNum.find((item) => item.difficulty === "Medium")?.count || 0;
+        user.hardSolved = stats.acSubmissionNum.find((item) => item.difficulty === "Hard")?.count || 0;
+        user.submissionCalendar = submissionCalendar;
+        user.leetcodeLastFetched = new Date();
+        await user.save();
+      }
+    }
+
     const result = {
       username,
       totalSolved,
@@ -128,8 +141,8 @@ const getLeetCodeStats = async (req, res) => {
       acceptanceRate,
       currentStreak,
       totalActiveDays,
+      mostActiveDay,
       submissionCalendar,
-      // You can also include breakdown by difficulty if needed:
       difficultyBreakdown: {
         easy: stats.acSubmissionNum.find((item) => item.difficulty === "Easy")?.count || 0,
         medium: stats.acSubmissionNum.find((item) => item.difficulty === "Medium")?.count || 0,
