@@ -105,11 +105,11 @@ const UserCard = ({ user }) => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
             >
-              <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden">
+              <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl w-full max-w-md flex flex-col max-h-[90vh]">
                 {/* Header */}
-                <div className="border-b border-white/10 p-6">
+                <div className="border-b border-white/10 p-6 flex-shrink-0">
                   <h2 className="text-lg font-bold text-white">Choose Avatar</h2>
                   <p className="text-xs text-slate-400 mt-1">
                     Select your profile picture
@@ -117,7 +117,7 @@ const UserCard = ({ user }) => {
                 </div>
 
                 {/* Avatar Grid */}
-                <div className="p-6">
+                <div className="p-6 overflow-y-auto flex-1 min-h-0">
                   <div className="grid grid-cols-4 gap-3">
                     {avatarSeeds.map((seed, index) => (
                       <motion.button
@@ -154,7 +154,7 @@ const UserCard = ({ user }) => {
                 </div>
 
                 {/* Preview */}
-                <div className="border-t border-white/10 bg-white/5 p-6">
+                <div className="border-t border-white/10 bg-white/5 p-6 flex-shrink-0">
                   <div className="flex items-center justify-center gap-4">
                     <div className="text-center">
                       <p className="text-xs text-slate-400 mb-2">Preview</p>
@@ -175,7 +175,7 @@ const UserCard = ({ user }) => {
                 </div>
 
                 {/* Footer */}
-                <div className="border-t border-white/10 p-4 flex gap-3">
+                <div className="border-t border-white/10 p-4 flex gap-3 flex-shrink-0">
                   <button
                     onClick={() => setShowAvatarModal(false)}
                     className="flex-1 rounded-lg bg-white/5 border border-white/10 text-slate-200 py-2 font-medium hover:bg-white/10 transition-colors duration-200"
