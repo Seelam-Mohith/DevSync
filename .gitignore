@@ -4,3 +4,4 @@ client/.env
 server/node_modules
 server/.env
 *.log
+PROJECT_DOCUMENTATION.md
