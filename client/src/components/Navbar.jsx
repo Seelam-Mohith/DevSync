@@ -1,12 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { Moon, Sun, Zap } from "lucide-react";
+import { Zap } from "lucide-react";
 import { Button } from "./ui/button";
 import useAuth from "../hooks/useAuth";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import AddAccountsModal from "./AddAccountsModal";
 
-const Navbar = ({ darkMode, onToggleTheme }) => {
+const Navbar = () => {
   const location = useLocation();
   const { user, logout } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -66,9 +66,6 @@ const Navbar = ({ darkMode, onToggleTheme }) => {
               </Button>
             )}
 
-            <Button variant="ghost" size="sm" onClick={onToggleTheme} aria-label="Toggle theme">
-              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
-            </Button>
             <span className="hidden text-sm text-muted-foreground sm:inline px-2">{user?.name}</span>
             {user && (
               <Button variant="outline" size="sm" onClick={logout}>

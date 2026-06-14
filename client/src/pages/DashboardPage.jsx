@@ -117,7 +117,7 @@ const DashboardPage = () => {
       transition={{ duration: 0.3 }}
       className="min-h-screen"
     >
-      <Navbar darkMode={darkMode} onToggleTheme={() => setDarkMode((prev) => !prev)} />
+      <Navbar />
       <main className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
