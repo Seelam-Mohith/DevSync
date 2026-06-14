@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
     },
+    avatar: {
+      type: String,
+      default: "Aria",
+    },
     linkedAccounts: {
       leetcode: { type: String, default: "" },
       github: { type: String, default: "" },

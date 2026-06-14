@@ -58,7 +58,7 @@ const getUserStats = async (req, res, next) => {
 
 const updateProfile = async (req, res, next) => {
   try {
-    const { linkedAccounts } = req.body;
+    const { linkedAccounts, avatar } = req.body;
     
     // Find user and update
     const user = await req.user.constructor.findById(req.user._id);
@@ -70,6 +70,10 @@ const updateProfile = async (req, res, next) => {
           ...linkedAccounts
         };
       }
+
+      if (avatar) {
+        user.avatar = avatar;
+      }
       
       const updatedUser = await user.save();
       
@@ -79,6 +83,7 @@ const updateProfile = async (req, res, next) => {
           _id: updatedUser._id,
           name: updatedUser.name,
           email: updatedUser.email,
+          avatar: updatedUser.avatar,
           linkedAccounts: updatedUser.linkedAccounts,
         }
       });

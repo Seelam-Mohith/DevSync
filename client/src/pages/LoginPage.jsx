@@ -12,7 +12,12 @@ const LoginPage = () => {
   const { login, register } = useAuth();
 
   const [isRegister, setIsRegister] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", avatar: "Aria" });
+
+  const avatarSeeds = [
+    "Aria", "Blake", "Cody", "Drew", "Eden", "Finn", "Gia", "Hugo",
+    "Ivy", "Jade", "Kai", "Luna", "Milo", "Nova", "Owen", "Rhea",
+  ];
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
 
@@ -35,6 +40,12 @@ const LoginPage = () => {
 
       if (isRegister && !form.name) {
         setError("Name is required for registration");
+        setPending(false);
+        return;
+      }
+
+      if (isRegister && !form.avatar) {
+        setError("Please select an avatar");
         setPending(false);
         return;
       }
@@ -158,6 +169,34 @@ const LoginPage = () => {
                       required
                     />
                   </motion.div>
+
+                  {isRegister && (
+                    <motion.div variants={itemVariants} className="space-y-2">
+                      <p className="text-xs text-slate-400 text-center">Choose your avatar</p>
+                      <div className="grid grid-cols-8 gap-2">
+                        {avatarSeeds.map((seed) => (
+                          <motion.button
+                            key={seed}
+                            type="button"
+                            whileHover={{ scale: 1.15 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => setForm((prev) => ({ ...prev, avatar: seed }))}
+                            className={`rounded-lg overflow-hidden transition-all duration-200 ${
+                              form.avatar === seed
+                                ? "ring-2 ring-blue-400 ring-offset-2 ring-offset-[#0f172a] scale-110"
+                                : "opacity-60 hover:opacity-100"
+                            }`}
+                          >
+                            <img
+                              src={`https://api.dicebear.com/10.x/toon-head/svg?seed=${seed}`}
+                              alt={seed}
+                              className="w-full h-auto"
+                            />
+                          </motion.button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
 
                   {error && (
                     <motion.p

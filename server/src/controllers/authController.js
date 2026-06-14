@@ -46,9 +46,9 @@ const validatePassword = (password) => {
 
 const register = async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, avatar } = req.body;
 
-    console.log("[AUTH] Register attempt:", { name, email, passwordLength: password?.length });
+    console.log("[AUTH] Register attempt:", { name, email, avatar, passwordLength: password?.length });
 
     // Validation
     if (!name || !email || !password) {
@@ -87,6 +87,7 @@ const register = async (req, res, next) => {
       name,
       email,
       password: hashedPassword,
+      avatar: avatar || "Aria",
     });
     console.log("[AUTH] User created:", { userId: user._id, email });
 
@@ -105,6 +106,7 @@ const register = async (req, res, next) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        avatar: user.avatar,
       },
       token,
     });
@@ -169,6 +171,7 @@ const login = async (req, res, next) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        avatar: user.avatar,
       },
       token,
     });
