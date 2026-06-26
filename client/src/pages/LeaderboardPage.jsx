@@ -1,10 +1,9 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import Navbar from "../components/Navbar";
 import LeaderboardTable from "../components/LeaderboardTable";
 import SquadPanel from "../components/SquadPanel";
 import { Card, CardContent } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Loader2, Users, Globe } from "lucide-react";
+import { Loader2, Users, Globe, Calendar } from "lucide-react";
 import api from "../lib/api";
 
 const LeaderboardPage = () => {
@@ -20,6 +19,17 @@ const LeaderboardPage = () => {
     document.documentElement.classList.toggle("dark", darkMode);
     localStorage.setItem("devsync_theme", darkMode ? "dark" : "light");
   }, [darkMode]);
+
+  const weekRange = useMemo(() => {
+    const now = new Date();
+    const day = now.getUTCDay();
+    const diff = day === 0 ? 6 : day - 1;
+    const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diff));
+    const sunday = new Date(monday);
+    sunday.setUTCDate(sunday.getUTCDate() + 6);
+    const fmt = (d) => d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+    return `${fmt(monday)} - ${fmt(sunday)}, ${monday.getUTCFullYear()}`;
+  }, []);
 
   const loadGlobal = useCallback(async () => {
     setError("");
@@ -83,32 +93,38 @@ const LeaderboardPage = () => {
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6">
         <SquadPanel squad={squad} onSquadChange={handleSquadChange} />
 
-        {squad && (
-          <div className="inline-flex rounded-xl border border-white/10 bg-white/5 p-1 backdrop-blur-sm">
-            <button
-              onClick={() => setView("global")}
-              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 ${
-                view === "global"
-                  ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/20"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              <Globe size={16} />
-              Global
-            </button>
-            <button
-              onClick={() => setView("squad")}
-              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 ${
-                view === "squad"
-                  ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/20"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              <Users size={16} />
-              Squad
-            </button>
+        <div className="flex items-center justify-between">
+          {squad && (
+            <div className="inline-flex rounded-xl border border-white/10 bg-white/5 p-1 backdrop-blur-sm">
+              <button
+                onClick={() => setView("global")}
+                className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                  view === "global"
+                    ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/20"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                <Globe size={16} />
+                Global
+              </button>
+              <button
+                onClick={() => setView("squad")}
+                className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                  view === "squad"
+                    ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/20"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                <Users size={16} />
+                Squad
+              </button>
+            </div>
+          )}
+          <div className="ml-auto flex items-center gap-1.5 text-xs text-slate-400">
+            <Calendar size={12} />
+            <span>{weekRange}</span>
           </div>
-        )}
+        </div>
 
         {error && (
           <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
