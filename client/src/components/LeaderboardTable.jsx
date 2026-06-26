@@ -25,7 +25,7 @@ const LeaderboardTable = ({ entries = [] }) => {
             <tr className="border-b border-border text-left text-muted-foreground">
               <th className="pb-2 pr-4">Rank</th>
               <th className="pb-2 pr-4">Developer</th>
-              <th className="pb-2">Score</th>
+              <th className="pb-2">Total Activity</th>
             </tr>
           </thead>
           <tbody>
@@ -33,7 +33,7 @@ const LeaderboardTable = ({ entries = [] }) => {
               <tr key={entry.userId} className="border-b border-border/70 last:border-0">
                 <td className="py-3 pr-4 font-semibold">#{index + 1}</td>
                 <td className="py-3 pr-4">{entry.name}</td>
-                <td className="py-3 font-semibold text-blue-400">{entry.totalPoints}</td>
+                <td className="py-3 font-semibold text-blue-400">{entry.entries}</td>
               </tr>
             ))}
           </tbody>
