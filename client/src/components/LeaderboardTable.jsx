@@ -54,8 +54,8 @@ const LeaderboardTable = ({ entries = [] }) => {
                     {entry.name}
                   </Link>
                 </td>
-                <td className="py-3 pr-4">{entry.entries}</td>
-                <td className="py-3 font-semibold text-blue-400">{entry.totalPoints}</td>
+                <td className="py-3 pr-4">{entry.totalActivity}</td>
+                <td className="py-3 font-semibold text-blue-400">{entry.score}</td>
               </tr>
             ))}
           </tbody>

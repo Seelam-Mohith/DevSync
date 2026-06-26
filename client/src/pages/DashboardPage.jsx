@@ -40,6 +40,10 @@ const DashboardPage = () => {
     if (githubUsername) refetchGitHub();
   }, [githubUsername]);
 
+  // Submission calendar for the heatmap (from fetched leetcode stats or user profile)
+  const submissionCalendar =
+    leetcodeStats?.submissionCalendar || user?.submissionCalendar || {};
+
   // Build stats object from user profile + fetched stats
   const getThisWeekSolved = (calendar) => {
     if (!calendar || typeof calendar !== "object") return 0;
@@ -47,9 +51,9 @@ const DashboardPage = () => {
     const day = now.getUTCDay();
     const diff = day === 0 ? 6 : day - 1;
     const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diff));
-    const weekStart = Math.floor(monday.getTime() / 1000);
-    return Object.entries(calendar).reduce((sum, [ts, count]) => {
-      return Number(ts) >= weekStart ? sum + count : sum;
+    const weekStart = monday.toISOString().split("T")[0];
+    return Object.entries(calendar).reduce((sum, [dateStr, count]) => {
+      return dateStr >= weekStart ? sum + count : sum;
     }, 0);
   };
 
@@ -61,10 +65,6 @@ const DashboardPage = () => {
     totalActiveDays: leetcodeStats?.totalActiveDays ?? user?.totalActiveDays ?? 0,
     thisWeekSolved: getThisWeekSolved(submissionCalendar),
   };
-
-  // Submission calendar for the heatmap (from fetched leetcode stats or user profile)
-  const submissionCalendar =
-    leetcodeStats?.submissionCalendar || user?.submissionCalendar || {};
 
   const containerVariants = {
     hidden: { opacity: 0 },

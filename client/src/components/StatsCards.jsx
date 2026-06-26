@@ -3,12 +3,6 @@ import { motion } from "framer-motion";
 import { TrendingUp, Activity, Globe, CheckCircle2, Calendar, Code2, Target, Flame } from "lucide-react";
 
 const StatsCards = ({ stats }) => {
-  const getMostActiveDay = () => {
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const dayIndex = stats?.mostActiveDayIndex ?? new Date().getDay();
-    return days[dayIndex];
-  };
-
   const IconComponent = ({ name }) => {
     const iconMap = {
       Activity: <Activity size={24} className="text-blue-400" />,
@@ -64,12 +58,12 @@ const StatsCards = ({ stats }) => {
       trend: "Code accuracy",
     },
     {
-      label: "Most Active Day",
-      value: getMostActiveDay(),
+      label: "This Week Solved",
+      value: stats?.thisWeekSolved ?? 0,
       gradient: "from-purple-500 via-violet-500 to-pink-500",
       icon: "Calendar",
-      subtitle: "Peak coding day",
-      trend: "Most productive",
+      subtitle: "Problems this week",
+      trend: "Weekly progress",
     },
 
   ];

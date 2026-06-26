@@ -9,19 +9,19 @@ import api from "../lib/api";
 const avatarUrl = (seed) =>
   seed ? `https://api.dicebear.com/10.x/toon-head/svg?seed=${seed}` : null;
 
-const getWeekStart = () => {
+const getWeekStartStr = () => {
   const now = new Date();
   const day = now.getUTCDay();
   const diff = day === 0 ? 6 : day - 1;
   const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diff));
-  return Math.floor(monday.getTime() / 1000);
+  return monday.toISOString().split("T")[0];
 };
 
 const getThisWeekSolved = (calendar) => {
   if (!calendar || typeof calendar !== "object") return 0;
-  const weekStart = getWeekStart();
-  return Object.entries(calendar).reduce((sum, [ts, count]) => {
-    return Number(ts) >= weekStart ? sum + count : sum;
+  const weekStart = getWeekStartStr();
+  return Object.entries(calendar).reduce((sum, [dateStr, count]) => {
+    return dateStr >= weekStart ? sum + count : sum;
   }, 0);
 };
 

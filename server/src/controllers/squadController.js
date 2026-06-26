@@ -1,5 +1,4 @@
 const Squad = require("../models/Squad");
-const Score = require("../models/Score");
 const User = require("../models/User");
 
 const createSquad = async (req, res, next) => {
@@ -101,6 +100,22 @@ const getUserSquad = async (req, res, next) => {
   }
 };
 
+const getWeekStartStr = () => {
+  const now = new Date();
+  const day = now.getUTCDay();
+  const diff = day === 0 ? 6 : day - 1;
+  const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diff));
+  return monday.toISOString().split("T")[0];
+};
+
+const computeThisWeekSolved = (calendar) => {
+  if (!calendar || typeof calendar !== "object") return 0;
+  const weekStart = getWeekStartStr();
+  return Object.entries(calendar).reduce((sum, [dateStr, count]) => {
+    return dateStr >= weekStart ? sum + count : sum;
+  }, 0);
+};
+
 const getSquadLeaderboard = async (req, res, next) => {
   try {
     const squad = await Squad.findById(req.params.id);
@@ -108,43 +123,23 @@ const getSquadLeaderboard = async (req, res, next) => {
       return res.status(404).json({ message: "Squad not found" });
     }
 
-    const leaderboard = await Score.aggregate([
-      {
-        $match: {
-          user: { $in: squad.members },
-        },
-      },
-      {
-        $group: {
-          _id: "$user",
-          totalPoints: { $sum: "$points" },
-          bestScore: { $max: "$points" },
-          entries: { $sum: 1 },
-        },
-      },
-      { $sort: { totalPoints: -1 } },
-      {
-        $lookup: {
-          from: "users",
-          localField: "_id",
-          foreignField: "_id",
-          as: "user",
-        },
-      },
-      { $unwind: "$user" },
-      {
-        $project: {
-          _id: 0,
-          userId: "$user._id",
-          name: "$user.name",
-          email: "$user.email",
-          avatar: "$user.avatar",
-          totalPoints: 1,
-          bestScore: 1,
-          entries: 1,
-        },
-      },
-    ]);
+    const users = await User.find({ _id: { $in: squad.members } })
+      .select("name email avatar submissionCalendar")
+      .lean();
+
+    const leaderboard = users
+      .map((user) => {
+        const totalActivity = computeThisWeekSolved(user.submissionCalendar);
+        return {
+          userId: user._id,
+          name: user.name,
+          email: user.email,
+          avatar: user.avatar,
+          totalActivity,
+          score: totalActivity * 5,
+        };
+      })
+      .sort((a, b) => b.totalActivity - a.totalActivity);
 
     res.status(200).json({ leaderboard });
   } catch (error) {
