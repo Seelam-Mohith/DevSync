@@ -84,23 +84,29 @@ const LeaderboardPage = () => {
         <SquadPanel squad={squad} onSquadChange={handleSquadChange} />
 
         {squad && (
-          <div className="flex items-center gap-2">
-            <Button
-              variant={view === "global" ? "default" : "ghost"}
-              size="sm"
+          <div className="inline-flex rounded-xl border border-white/10 bg-white/5 p-1 backdrop-blur-sm">
+            <button
               onClick={() => setView("global")}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                view === "global"
+                  ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/20"
+                  : "text-slate-400 hover:text-white"
+              }`}
             >
-              <Globe size={14} className="mr-1.5" />
+              <Globe size={16} />
               Global
-            </Button>
-            <Button
-              variant={view === "squad" ? "default" : "ghost"}
-              size="sm"
+            </button>
+            <button
               onClick={() => setView("squad")}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                view === "squad"
+                  ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/20"
+                  : "text-slate-400 hover:text-white"
+              }`}
             >
-              <Users size={14} className="mr-1.5" />
+              <Users size={16} />
               Squad
-            </Button>
+            </button>
           </div>
         )}
 
