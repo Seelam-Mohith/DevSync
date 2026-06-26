@@ -28,6 +28,7 @@ const getLeaderboard = async (req, res, next) => {
           userId: "$user._id",
           name: "$user.name",
           email: "$user.email",
+          avatar: "$user.avatar",
           totalPoints: 1,
           bestScore: 1,
           entries: 1,

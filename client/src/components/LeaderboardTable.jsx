@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
+const avatarUrl = (seed) =>
+  seed ? `https://api.dicebear.com/10.x/toon-head/svg?seed=${seed}` : null;
+
 const LeaderboardTable = ({ entries = [] }) => {
   if (!entries.length) {
     return (
@@ -37,8 +40,17 @@ const LeaderboardTable = ({ entries = [] }) => {
                 <td className="py-3 pr-4">
                   <Link
                     to={`/profile/${entry.userId}`}
-                    className="font-medium text-slate-200 transition-colors hover:text-blue-400"
+                    className="flex items-center gap-3 font-medium text-slate-200 transition-colors hover:text-blue-400"
                   >
+                    <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-white/10">
+                      {entry.avatar ? (
+                        <img src={avatarUrl(entry.avatar)} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-blue-600 text-xs font-bold text-white">
+                          {(entry.name || "?").charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
                     {entry.name}
                   </Link>
                 </td>
