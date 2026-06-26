@@ -6,6 +6,7 @@ const userRoutes = require("./routes/userRoutes");
 const leaderboardRoutes = require("./routes/leaderboardRoutes");
 const leetcodeRoutes = require("./routes/leetcodeRoutes");
 const githubRoutes = require("./routes/githubRoutes");
+const squadRoutes = require("./routes/squadRoutes");
 // const codolioRoutes = require("./routes/codolioRoutes"); // Disabled for Node.js 18 compatibility
 const { errorHandler, notFound } = require("./middleware/errorMiddleware");
 
@@ -65,6 +66,7 @@ app.get("/", (req, res) => {
       user: "/api/user",
       activity: "/api/activity",
       leaderboard: "/api/leaderboard",
+      squads: "/api/squads",
       github: "/api/github",
       codolio: "/api/codolio",
     },
@@ -77,6 +79,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 app.use("/api/leetcode", leetcodeRoutes);
 app.use("/api/github", githubRoutes);
+app.use("/api/squads", squadRoutes);
 // app.use("/api/codolio", codolioRoutes); // Disabled for Node.js 18 compatibility
 
 // Error handling middleware (must be last)

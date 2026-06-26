@@ -55,6 +55,13 @@ const userSchema = new mongoose.Schema(
     githubProfileUrl: { type: String, default: "" },
     githubBio: { type: String, default: "" },
 
+    // Squad reference
+    squad: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Squad",
+      default: null,
+    },
+
     // Last fetch timestamps
     leetcodeLastFetched: { type: Date, default: null },
     githubLastFetched: { type: Date, default: null },
