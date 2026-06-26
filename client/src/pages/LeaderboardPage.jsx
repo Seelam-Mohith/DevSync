@@ -1,9 +1,9 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import Navbar from "../components/Navbar";
 import LeaderboardTable from "../components/LeaderboardTable";
 import SquadPanel from "../components/SquadPanel";
 import { Card, CardContent } from "../components/ui/card";
-import { Loader2, Users, Globe, Calendar } from "lucide-react";
+import { Loader2, Users, Globe, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import api from "../lib/api";
 
 const LeaderboardPage = () => {
@@ -11,6 +11,7 @@ const LeaderboardPage = () => {
   const [squadLeaderboard, setSquadLeaderboard] = useState([]);
   const [squad, setSquad] = useState(null);
   const [view, setView] = useState("global");
+  const [weekOffset, setWeekOffset] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [darkMode, setDarkMode] = useState(localStorage.getItem("devsync_theme") === "dark");
@@ -20,32 +21,41 @@ const LeaderboardPage = () => {
     localStorage.setItem("devsync_theme", darkMode ? "dark" : "light");
   }, [darkMode]);
 
-  const weekRange = useMemo(() => {
+  const getMondayDate = useCallback((offset) => {
     const now = new Date();
+    now.setUTCDate(now.getUTCDate() + offset * 7);
     const day = now.getUTCDay();
     const diff = day === 0 ? 6 : day - 1;
-    const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diff));
+    return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diff));
+  }, []);
+
+  const weekStartUnix = useMemo(() => Math.floor(getMondayDate(weekOffset).getTime() / 1000), [getMondayDate, weekOffset]);
+
+  const weekRange = useMemo(() => {
+    const monday = getMondayDate(weekOffset);
     const sunday = new Date(monday);
     sunday.setUTCDate(sunday.getUTCDate() + 6);
     const fmt = (d) => d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
     return `${fmt(monday)} - ${fmt(sunday)}, ${monday.getUTCFullYear()}`;
-  }, []);
+  }, [getMondayDate, weekOffset]);
 
-  const loadGlobal = useCallback(async () => {
+  const loadGlobal = useCallback(async (weekStart) => {
     setError("");
     try {
-      const { data } = await api.get("/leaderboard");
+      const params = weekStart ? { weekStart } : {};
+      const { data } = await api.get("/leaderboard", { params });
       setLeaderboard(data.leaderboard || []);
     } catch (requestError) {
       setError(requestError?.response?.data?.message || "Failed to load leaderboard");
     }
   }, []);
 
-  const loadSquadLeaderboard = useCallback(async (squadId) => {
+  const loadSquadLeaderboard = useCallback(async (squadId, weekStart) => {
     if (!squadId) return;
     setError("");
     try {
-      const { data } = await api.get(`/squads/${squadId}/leaderboard`);
+      const params = weekStart ? { weekStart } : {};
+      const { data } = await api.get(`/squads/${squadId}/leaderboard`, { params });
       setSquadLeaderboard(data.leaderboard || []);
     } catch (requestError) {
       setError(requestError?.response?.data?.message || "Failed to load squad leaderboard");
@@ -63,27 +73,38 @@ const LeaderboardPage = () => {
     }
   }, []);
 
+  const firstMount = useRef(true);
+
   useEffect(() => {
     const init = async () => {
-      setLoading(true);
-      await loadGlobal();
+      if (firstMount.current) {
+        firstMount.current = false;
+        setLoading(true);
+      }
+      await loadGlobal(weekStartUnix);
       const userSquad = await loadUserSquad();
       if (userSquad) {
-        await loadSquadLeaderboard(userSquad._id);
+        await loadSquadLeaderboard(userSquad._id, weekStartUnix);
       }
-      setLoading(false);
+      if (firstMount.current === false) {
+        setLoading(false);
+      }
     };
     init();
-  }, [loadGlobal, loadUserSquad, loadSquadLeaderboard]);
+  }, [loadGlobal, loadUserSquad, loadSquadLeaderboard, weekStartUnix]);
 
   const handleSquadChange = (newSquad) => {
     setSquad(newSquad);
     if (newSquad) {
-      loadSquadLeaderboard(newSquad._id);
+      loadSquadLeaderboard(newSquad._id, weekStartUnix);
     } else {
       setSquadLeaderboard([]);
     }
   };
+
+  const handleWeekChange = useCallback((newOffset) => {
+    setWeekOffset(newOffset);
+  }, []);
 
   const entries = view === "global" ? leaderboard : squadLeaderboard;
 
@@ -120,9 +141,26 @@ const LeaderboardPage = () => {
               </button>
             </div>
           )}
-          <div className="ml-auto flex items-center gap-1.5 text-xs text-slate-400">
-            <Calendar size={12} />
-            <span>{weekRange}</span>
+          <div className="ml-auto flex items-center gap-2 text-xs text-slate-400">
+            <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 p-0.5">
+              <button
+                onClick={() => handleWeekChange(weekOffset - 1)}
+                className="rounded-md p-1 transition-colors hover:bg-white/10 hover:text-white"
+              >
+                <ChevronLeft size={14} />
+              </button>
+              <span className="flex items-center gap-1 px-1">
+                <Calendar size={12} />
+                {weekRange}
+              </span>
+              <button
+                onClick={() => handleWeekChange(weekOffset + 1)}
+                disabled={weekOffset >= 0}
+                className="rounded-md p-1 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                <ChevronRight size={14} />
+              </button>
+            </div>
           </div>
         </div>
 

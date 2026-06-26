@@ -100,19 +100,18 @@ const getUserSquad = async (req, res, next) => {
   }
 };
 
-const getWeekStartStr = () => {
-  const now = new Date();
-  const day = now.getUTCDay();
+const getMondayStr = (unixSeconds) => {
+  const date = unixSeconds ? new Date(unixSeconds * 1000) : new Date();
+  const day = date.getUTCDay();
   const diff = day === 0 ? 6 : day - 1;
-  const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diff));
+  const monday = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() - diff));
   return monday.toISOString().split("T")[0];
 };
 
-const computeThisWeekSolved = (calendar) => {
+const computeThisWeekSolved = (calendar, weekStartStr) => {
   if (!calendar || typeof calendar !== "object") return 0;
-  const weekStart = getWeekStartStr();
   return Object.entries(calendar).reduce((sum, [dateStr, count]) => {
-    return dateStr >= weekStart ? sum + count : sum;
+    return dateStr >= weekStartStr ? sum + count : sum;
   }, 0);
 };
 
@@ -123,13 +122,16 @@ const getSquadLeaderboard = async (req, res, next) => {
       return res.status(404).json({ message: "Squad not found" });
     }
 
+    const weekStartUnix = req.query.weekStart ? Number(req.query.weekStart) : null;
+    const weekStartStr = getMondayStr(weekStartUnix);
+
     const users = await User.find({ _id: { $in: squad.members } })
       .select("name email avatar submissionCalendar")
       .lean();
 
     const leaderboard = users
       .map((user) => {
-        const totalActivity = computeThisWeekSolved(user.submissionCalendar);
+        const totalActivity = computeThisWeekSolved(user.submissionCalendar, weekStartStr);
         return {
           userId: user._id,
           name: user.name,
