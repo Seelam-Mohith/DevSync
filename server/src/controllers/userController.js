@@ -1,3 +1,27 @@
+const User = require("../models/User");
+
+const getUserById = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id)
+      .select("-password")
+      .lean();
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.submissionCalendar && typeof user.submissionCalendar === "object") {
+      user.submissionCalendar = Object.fromEntries(
+        new Map(Object.entries(user.submissionCalendar))
+      );
+    }
+
+    res.status(200).json({ user });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getProfile = async (req, res, next) => {
   try {
     const user = req.user.toObject();
@@ -40,6 +64,7 @@ const updateProfile = async (req, res, next) => {
 };
 
 module.exports = {
+  getUserById,
   getProfile,
   updateProfile,
 };
