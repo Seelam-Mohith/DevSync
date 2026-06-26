@@ -110,28 +110,45 @@ const SquadPanel = ({ squad, onSquadChange }) => {
   return (
     <>
       <Card>
-        <CardContent className="p-5">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800">
-                <Users size={20} className="text-slate-400" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-white">Squad</h3>
-                <p className="text-xs text-slate-400">Compete with friends</p>
-              </div>
+        <CardContent className="p-6">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/20">
+              <Users size={22} className="text-blue-400" />
             </div>
+            <div>
+              <h3 className="text-lg font-semibold text-white">Squad</h3>
+              <p className="text-sm text-slate-400">Compete with friends on the leaderboard</p>
+            </div>
+          </div>
 
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => setShowCreate(true)}>
-                <Plus size={14} className="mr-1" />
-                Create
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => setShowJoin(true)}>
-                <LogIn size={14} className="mr-1" />
-                Join
-              </Button>
-            </div>
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              onClick={() => setShowCreate(true)}
+              className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-blue-600/20 to-blue-700/10 p-5 text-left transition-all duration-300 hover:border-blue-500/40 hover:from-blue-600/30 hover:shadow-lg hover:shadow-blue-500/10"
+            >
+              <div className="relative z-10">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/20 transition-transform duration-300 group-hover:scale-110">
+                  <Plus size={20} className="text-blue-400" />
+                </div>
+                <h4 className="mb-1 font-semibold text-white">Create Squad</h4>
+                <p className="text-xs text-slate-400">Start your own team and invite others</p>
+              </div>
+              <div className="absolute inset-0 translate-y-full bg-gradient-to-t from-blue-500/10 to-transparent transition-transform duration-300 group-hover:translate-y-0" />
+            </button>
+
+            <button
+              onClick={() => setShowJoin(true)}
+              className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-cyan-600/20 to-cyan-700/10 p-5 text-left transition-all duration-300 hover:border-cyan-500/40 hover:from-cyan-600/30 hover:shadow-lg hover:shadow-cyan-500/10"
+            >
+              <div className="relative z-10">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-500/20 transition-transform duration-300 group-hover:scale-110">
+                  <LogIn size={20} className="text-cyan-400" />
+                </div>
+                <h4 className="mb-1 font-semibold text-white">Join Squad</h4>
+                <p className="text-xs text-slate-400">Enter an invite code to join a team</p>
+              </div>
+              <div className="absolute inset-0 translate-y-full bg-gradient-to-t from-cyan-500/10 to-transparent transition-transform duration-300 group-hover:translate-y-0" />
+            </button>
           </div>
         </CardContent>
       </Card>
