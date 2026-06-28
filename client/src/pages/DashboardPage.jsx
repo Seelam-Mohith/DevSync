@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import UserCard from "../components/UserCard";
 import StatsCards from "../components/StatsCards";
 import CodingProfileMetrics from "../components/CodingProfileMetrics";
@@ -150,6 +151,7 @@ const DashboardPage = () => {
           </motion.div>
         </motion.div>
       </main>
+      <Footer />
     </motion.div>
   );
 };

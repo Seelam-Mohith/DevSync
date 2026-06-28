@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { ArrowLeft, Code, GitBranch, Trophy, Loader2 } from "lucide-react";
@@ -173,6 +174,7 @@ const UserProfilePage = () => {
           </Card>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

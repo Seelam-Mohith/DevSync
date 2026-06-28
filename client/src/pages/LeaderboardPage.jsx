@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 import LeaderboardTable from "../components/LeaderboardTable";
 import SquadPanel from "../components/SquadPanel";
 import { Card, CardContent } from "../components/ui/card";
@@ -187,6 +188,7 @@ const LeaderboardPage = () => {
           </>
         )}
       </main>
+      <Footer />
     </div>
   );
 };

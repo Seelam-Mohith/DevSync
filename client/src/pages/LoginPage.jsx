@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Zap } from "lucide-react";
+import { Zap, GitBranch } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import Input from "../components/ui/input";
 import { Button } from "../components/ui/button";
@@ -246,6 +246,22 @@ const LoginPage = () => {
           </motion.div>
         </motion.div>
       </motion.div>
+      <footer className="absolute bottom-0 left-0 right-0 border-t border-white/10 bg-white/5 py-3">
+        <div className="mx-auto flex w-full max-w-md items-center justify-between px-4">
+          <p className="text-xs text-slate-500">
+            Built by <span className="text-slate-300 font-medium">Mohith</span>
+          </p>
+          <a
+            href="https://github.com/seelammohith2222"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-300 transition-colors"
+          >
+            <GitBranch size={12} />
+            seelammohith2222
+          </a>
+        </div>
+      </footer>
     </div>
   );
 };
