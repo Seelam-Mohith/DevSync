@@ -123,7 +123,7 @@ const UserProfilePage = () => {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-400">This Week Solved</span>
-                <span className="font-semibold text-blue-400">{Math.max(0, (user.totalSolved ?? 0) - (user.totalSolvedAtWeekStart ?? 0))}</span>
+                <span className="font-semibold text-blue-400">{(() => { const monday = new Date(); const d = monday.getUTCDay(); const diff = d === 0 ? 6 : d - 1; monday.setUTCDate(monday.getUTCDate() - diff); const ms = monday.toISOString().split("T")[0]; return user.weekSnapshotDate === ms ? Math.max(0, (user.totalSolved ?? 0) - (user.totalSolvedAtWeekStart ?? 0)) : 0; })()}</span>
               </div>
             </CardContent>
           </Card>

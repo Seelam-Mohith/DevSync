@@ -46,6 +46,19 @@ const DashboardPage = () => {
 
   const totalSolved = leetcodeStats?.totalSolved ?? user?.totalSolved ?? 0;
   const totalSolvedAtWeekStart = user?.totalSolvedAtWeekStart ?? 0;
+  const weekSnapshotDate = user?.weekSnapshotDate ?? null;
+
+  const getCurrentMondayStr = () => {
+    const now = new Date();
+    const day = now.getUTCDay();
+    const diff = day === 0 ? 6 : day - 1;
+    const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diff));
+    return monday.toISOString().split("T")[0];
+  };
+
+  const thisWeekSolved = weekSnapshotDate === getCurrentMondayStr()
+    ? Math.max(0, totalSolved - totalSolvedAtWeekStart)
+    : 0;
 
   const displayStats = {
     totalSolved,
@@ -53,7 +66,7 @@ const DashboardPage = () => {
     acceptanceRate: leetcodeStats?.acceptanceRate ?? user?.acceptanceRate ?? 0,
     currentStreak: leetcodeStats?.currentStreak ?? user?.currentStreak ?? 0,
     totalActiveDays: leetcodeStats?.totalActiveDays ?? user?.totalActiveDays ?? 0,
-    thisWeekSolved: Math.max(0, totalSolved - totalSolvedAtWeekStart),
+    thisWeekSolved,
   };
 
   const containerVariants = {

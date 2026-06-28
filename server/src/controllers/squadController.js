@@ -119,6 +119,7 @@ const getCurrentMondayStr = () => {
 const computeActivity = (user, weekStartStr) => {
   const currentMonday = getCurrentMondayStr();
   if (weekStartStr === currentMonday) {
+    if (user.weekSnapshotDate !== currentMonday) return 0;
     return Math.max(0, user.totalSolved - (user.totalSolvedAtWeekStart || 0));
   }
   const calendar = user.submissionCalendar;
