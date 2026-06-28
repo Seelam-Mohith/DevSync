@@ -22,33 +22,35 @@ const Footer = () => {
             </p>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-3">
-            <div>
-              <h4 className="text-sm font-semibold uppercase tracking-[0.18em] text-gray-300">
-                Contact
-              </h4>
-              <a
-                href="mailto:seelammohith2222@gmail.com"
-                className="mt-3 flex items-center gap-3 text-sm text-gray-400 transition-colors hover:text-blue-300"
-              >
-                <Mail className="h-4 w-4" />
-                <span>seelammohith2222@gmail.com</span>
-              </a>
-            </div>
+          <div className="space-y-6">
+            <div className="grid gap-8 sm:grid-cols-2">
+              <div>
+                <h4 className="text-sm font-semibold uppercase tracking-[0.18em] text-gray-300">
+                  Contact
+                </h4>
+                <a
+                  href="mailto:seelammohith2222@gmail.com"
+                  className="mt-3 flex items-center gap-3 text-sm text-gray-400 transition-colors hover:text-blue-300"
+                >
+                  <Mail className="h-4 w-4" />
+                  <span>seelammohith2222@gmail.com</span>
+                </a>
+              </div>
 
-            <div>
-              <h4 className="text-sm font-semibold uppercase tracking-[0.18em] text-gray-300">
-                Creator
-              </h4>
-              <a
-                href="https://github.com/Seelam-Mohith"
-                target="_blank"
-                rel="noreferrer"
-                className="mt-3 flex items-center gap-3 text-sm text-gray-400 transition-colors hover:text-blue-300"
-              >
-                <GitBranch className="h-4 w-4" />
-                <span>github.com/Seelam-Mohith</span>
-              </a>
+              <div>
+                <h4 className="text-sm font-semibold uppercase tracking-[0.18em] text-gray-300">
+                  Creator
+                </h4>
+                <a
+                  href="https://github.com/Seelam-Mohith"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 flex items-center gap-3 text-sm text-gray-400 transition-colors hover:text-blue-300"
+                >
+                  <GitBranch className="h-4 w-4" />
+                  <span>github.com/Seelam-Mohith</span>
+                </a>
+              </div>
             </div>
 
             <div>
