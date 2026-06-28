@@ -76,21 +76,19 @@ const LeaderboardPage = () => {
   const firstMount = useRef(true);
 
   useEffect(() => {
-    const init = async () => {
-      if (firstMount.current) {
-        firstMount.current = false;
-        setLoading(true);
-      }
+    if (firstMount.current) {
+      firstMount.current = false;
+      setLoading(true);
+    }
+    const fetchData = async () => {
       await loadGlobal(weekStartUnix);
       const userSquad = await loadUserSquad();
       if (userSquad) {
         await loadSquadLeaderboard(userSquad._id, weekStartUnix);
       }
-      if (firstMount.current === false) {
-        setLoading(false);
-      }
+      setLoading(false);
     };
-    init();
+    fetchData();
   }, [loadGlobal, loadUserSquad, loadSquadLeaderboard, weekStartUnix]);
 
   const handleSquadChange = (newSquad) => {
