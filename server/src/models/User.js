@@ -47,6 +47,8 @@ const userSchema = new mongoose.Schema(
     mediumSolved: { type: Number, default: 0 },
     hardSolved: { type: Number, default: 0 },
     submissionCalendar: { type: Map, of: Number, default: {} },
+    totalSolvedAtWeekStart: { type: Number, default: 0 },
+    weekSnapshotDate: { type: String, default: null },
 
     // GitHub stats (defaults to 0 until fetched)
     totalRepositories: { type: Number, default: 0 },

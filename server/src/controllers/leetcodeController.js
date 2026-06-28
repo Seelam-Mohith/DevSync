@@ -130,6 +130,19 @@ const getLeetCodeStats = async (req, res) => {
         user.hardSolved = stats.acSubmissionNum.find((item) => item.difficulty === "Hard")?.count || 0;
         user.submissionCalendar = submissionCalendar;
         user.leetcodeLastFetched = new Date();
+
+        // Snapshot totalSolved at the start of each week
+        const monday = new Date();
+        const day = monday.getUTCDay();
+        const diff = day === 0 ? 6 : day - 1;
+        monday.setUTCDate(monday.getUTCDate() - diff);
+        const currentMonday = monday.toISOString().split("T")[0];
+
+        if (user.weekSnapshotDate !== currentMonday) {
+          user.totalSolvedAtWeekStart = totalSolved;
+          user.weekSnapshotDate = currentMonday;
+        }
+
         await user.save();
       }
     }

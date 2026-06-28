@@ -15,7 +15,20 @@ const getWeekEndStr = (mondayStr) => {
   return sunday.toISOString().split("T")[0];
 };
 
-const computeThisWeekSolved = (calendar, weekStartStr) => {
+const getCurrentMondayStr = () => {
+  const now = new Date();
+  const day = now.getUTCDay();
+  const diff = day === 0 ? 6 : day - 1;
+  const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diff));
+  return monday.toISOString().split("T")[0];
+};
+
+const computeActivity = (user, weekStartStr) => {
+  const currentMonday = getCurrentMondayStr();
+  if (weekStartStr === currentMonday) {
+    return Math.max(0, user.totalSolved - (user.totalSolvedAtWeekStart || 0));
+  }
+  const calendar = user.submissionCalendar;
   if (!calendar || typeof calendar !== "object") return 0;
   return Object.entries(calendar).reduce((sum, [dateStr, count]) => {
     return dateStr >= weekStartStr ? sum + count : sum;
@@ -29,12 +42,12 @@ const getLeaderboard = async (req, res, next) => {
     const weekEndStr = getWeekEndStr(weekStartStr);
 
     const users = await User.find()
-      .select("name email avatar submissionCalendar")
+      .select("name email avatar submissionCalendar totalSolved totalSolvedAtWeekStart")
       .lean();
 
     const leaderboard = users
       .map((user) => {
-        const totalActivity = computeThisWeekSolved(user.submissionCalendar, weekStartStr);
+        const totalActivity = computeActivity(user, weekStartStr);
         return {
           userId: user._id,
           name: user.name,

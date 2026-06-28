@@ -44,26 +44,16 @@ const DashboardPage = () => {
   const submissionCalendar =
     leetcodeStats?.submissionCalendar || user?.submissionCalendar || {};
 
-  // Build stats object from user profile + fetched stats
-  const getThisWeekSolved = (calendar) => {
-    if (!calendar || typeof calendar !== "object") return 0;
-    const now = new Date();
-    const day = now.getUTCDay();
-    const diff = day === 0 ? 6 : day - 1;
-    const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diff));
-    const weekStart = monday.toISOString().split("T")[0];
-    return Object.entries(calendar).reduce((sum, [dateStr, count]) => {
-      return dateStr >= weekStart ? sum + count : sum;
-    }, 0);
-  };
+  const totalSolved = leetcodeStats?.totalSolved ?? user?.totalSolved ?? 0;
+  const totalSolvedAtWeekStart = user?.totalSolvedAtWeekStart ?? 0;
 
   const displayStats = {
-    totalSolved: leetcodeStats?.totalSolved ?? user?.totalSolved ?? 0,
+    totalSolved,
     totalSubmissions: leetcodeStats?.totalSubmissions ?? user?.totalSubmissions ?? 0,
     acceptanceRate: leetcodeStats?.acceptanceRate ?? user?.acceptanceRate ?? 0,
     currentStreak: leetcodeStats?.currentStreak ?? user?.currentStreak ?? 0,
     totalActiveDays: leetcodeStats?.totalActiveDays ?? user?.totalActiveDays ?? 0,
-    thisWeekSolved: getThisWeekSolved(submissionCalendar),
+    thisWeekSolved: Math.max(0, totalSolved - totalSolvedAtWeekStart),
   };
 
   const containerVariants = {

@@ -9,22 +9,6 @@ import api from "../lib/api";
 const avatarUrl = (seed) =>
   seed ? `https://api.dicebear.com/10.x/toon-head/svg?seed=${seed}` : null;
 
-const getWeekStartStr = () => {
-  const now = new Date();
-  const day = now.getUTCDay();
-  const diff = day === 0 ? 6 : day - 1;
-  const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diff));
-  return monday.toISOString().split("T")[0];
-};
-
-const getThisWeekSolved = (calendar) => {
-  if (!calendar || typeof calendar !== "object") return 0;
-  const weekStart = getWeekStartStr();
-  return Object.entries(calendar).reduce((sum, [dateStr, count]) => {
-    return dateStr >= weekStart ? sum + count : sum;
-  }, 0);
-};
-
 const UserProfilePage = () => {
   const { userId } = useParams();
   const [user, setUser] = useState(null);
@@ -139,7 +123,7 @@ const UserProfilePage = () => {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-400">This Week Solved</span>
-                <span className="font-semibold text-blue-400">{getThisWeekSolved(user.submissionCalendar)}</span>
+                <span className="font-semibold text-blue-400">{Math.max(0, (user.totalSolved ?? 0) - (user.totalSolvedAtWeekStart ?? 0))}</span>
               </div>
             </CardContent>
           </Card>
