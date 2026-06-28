@@ -2,7 +2,7 @@ import { GitBranch, Mail, Zap } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="mt-16 border-t border-white/10 bg-gray-950/70 backdrop-blur-sm">
+    <footer className="mt-16 border-t border-white/10 bg-white/5 backdrop-blur-xl">
       <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <div className="max-w-xl">
