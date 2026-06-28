@@ -1,4 +1,4 @@
-import { GitBranch, Mail, Zap } from "lucide-react";
+import { Bug, GitBranch, Mail, Zap } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -22,7 +22,7 @@ const Footer = () => {
             </p>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2">
+          <div className="grid gap-6 sm:grid-cols-3">
             <div>
               <h4 className="text-sm font-semibold uppercase tracking-[0.18em] text-gray-300">
                 Contact
@@ -48,6 +48,21 @@ const Footer = () => {
               >
                 <GitBranch className="h-4 w-4" />
                 <span>github.com/Seelam-Mohith</span>
+              </a>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold uppercase tracking-[0.18em] text-gray-300">
+                Issues
+              </h4>
+              <a
+                href="https://github.com/Seelam-Mohith/DevSync/issues"
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 flex items-center gap-3 text-sm text-gray-400 transition-colors hover:text-blue-300"
+              >
+                <Bug className="h-4 w-4" />
+                <span>Report issues here</span>
               </a>
             </div>
           </div>
