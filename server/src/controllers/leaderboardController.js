@@ -43,7 +43,7 @@ const getLeaderboard = async (req, res, next) => {
     const weekEndStr = getWeekEndStr(weekStartStr);
 
     const users = await User.find()
-      .select("name email avatar submissionCalendar totalSolved totalSolvedAtWeekStart")
+      .select("name email avatar submissionCalendar totalSolved totalSolvedAtWeekStart weekSnapshotDate")
       .lean();
 
     const leaderboard = users

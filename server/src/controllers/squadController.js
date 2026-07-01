@@ -140,7 +140,7 @@ const getSquadLeaderboard = async (req, res, next) => {
     const weekStartStr = getMondayStr(weekStartUnix);
 
     const users = await User.find({ _id: { $in: squad.members } })
-      .select("name email avatar submissionCalendar totalSolved totalSolvedAtWeekStart")
+      .select("name email avatar submissionCalendar totalSolved totalSolvedAtWeekStart weekSnapshotDate")
       .lean();
 
     const leaderboard = users
