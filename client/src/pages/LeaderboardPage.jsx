@@ -108,9 +108,9 @@ const LeaderboardPage = () => {
   const entries = view === "global" ? leaderboard : squadLeaderboard;
 
   return (
-    <div className="min-h-screen">
+    <div className="flex min-h-screen flex-col">
       <Navbar darkMode={darkMode} onToggleTheme={() => setDarkMode((prev) => !prev)} />
-      <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6">
+      <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-6 sm:px-6">
         <SquadPanel squad={squad} onSquadChange={handleSquadChange} />
 
         <div className="flex items-center justify-between">

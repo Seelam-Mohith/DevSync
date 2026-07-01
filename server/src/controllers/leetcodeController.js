@@ -90,10 +90,21 @@ const getLeetCodeStats = async (req, res) => {
         if (timestamps.length > 0) {
           const now = Math.floor(Date.now() / 1000);
           const SECONDS_IN_DAY = 86400;
-          const activeDays = new Set(timestamps.map(t => Math.floor(t / SECONDS_IN_DAY)));
-          totalActiveDays = activeDays.size;
 
+          // Log sample timestamps to understand format
+          const sortedTimestamps = [...timestamps].sort((a, b) => a - b);
+          console.log(`[LEETCODE] ${username}: ${timestamps.length} total timestamps`);
+          console.log(`[LEETCODE] First 3: ${sortedTimestamps.slice(0, 3).join(', ')} (${sortedTimestamps.slice(0, 3).map(t => new Date(t * 1000).toISOString()).join(', ')})`);
+          console.log(`[LEETCODE] Last 3: ${sortedTimestamps.slice(-3).join(', ')} (${sortedTimestamps.slice(-3).map(t => new Date(t * 1000).toISOString()).join(', ')})`);
+
+          // Each entry in LeetCode's submissionCalendar is one day.
+          // Use Object.keys count first as the simplest measure.
+          totalActiveDays = Object.keys(calendar).length;
+          console.log(`[LEETCODE] totalActiveDays (Object.keys): ${totalActiveDays}`);
+
+          // Streak uses UTC to preserve the correct consecutive count
           let today = Math.floor(now / SECONDS_IN_DAY);
+          const activeDays = new Set(timestamps.map(t => Math.floor(t / SECONDS_IN_DAY)));
           if (activeDays.has(today)) {
             currentStreak = 1;
           } else if (activeDays.has(today - 1)) {
