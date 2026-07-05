@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { MongoMemoryServer } = require("mongodb-memory-server");
 
 let memoryServer = null;
 
@@ -37,6 +36,17 @@ const connectDB = async () => {
       return;
     }
 
+    if (process.env.NODE_ENV === "production") {
+      console.error(
+        "[DB] MONGO_URI is not set. In production, you must provide a MongoDB connection string."
+      );
+      console.error(
+        "[DB] Set MONGO_URI in your environment variables (e.g., Railway dashboard)."
+      );
+      process.exit(1);
+    }
+
+    const { MongoMemoryServer } = require("mongodb-memory-server");
     memoryServer = await MongoMemoryServer.create({
       instance: { dbName: "devsync" },
     });
