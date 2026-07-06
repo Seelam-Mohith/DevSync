@@ -113,9 +113,9 @@ const LeaderboardPage = () => {
       <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-6 sm:px-6">
         <SquadPanel squad={squad} onSquadChange={handleSquadChange} />
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           {squad && (
-            <div className="inline-flex rounded-xl border border-white/10 bg-white/5 p-1 backdrop-blur-sm">
+            <div className="inline-flex rounded-xl border border-white/10 bg-white/5 p-1 backdrop-blur-sm self-start">
               <button
                 onClick={() => setView("global")}
                 className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 ${
@@ -140,24 +140,24 @@ const LeaderboardPage = () => {
               </button>
             </div>
           )}
-          <div className="ml-auto flex items-center gap-2 text-xs text-slate-400">
+          <div className={`flex items-center gap-2 text-xs text-slate-400 ${squad ? "sm:ml-auto" : ""}`}>
             <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 p-0.5">
               <button
                 onClick={() => handleWeekChange(weekOffset - 1)}
-                className="rounded-md p-1 transition-colors hover:bg-white/10 hover:text-white"
+                className="rounded-md p-1.5 transition-colors hover:bg-white/10 hover:text-white"
               >
-                <ChevronLeft size={14} />
+                <ChevronLeft size={16} />
               </button>
-              <span className="flex items-center gap-1 px-1">
-                <Calendar size={12} />
+              <span className="flex items-center gap-1 whitespace-nowrap px-2 text-xs sm:text-sm">
+                <Calendar size={14} className="hidden sm:inline" />
                 {weekRange}
               </span>
               <button
                 onClick={() => handleWeekChange(weekOffset + 1)}
                 disabled={weekOffset >= 0}
-                className="rounded-md p-1 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+                className="rounded-md p-1.5 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
               >
-                <ChevronRight size={14} />
+                <ChevronRight size={16} />
               </button>
             </div>
           </div>
