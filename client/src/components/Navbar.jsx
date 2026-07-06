@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Zap, Code, GitBranch, Terminal, Pencil, Plus, LogOut, ChevronDown } from "lucide-react";
+import { Zap, Code, GitBranch, Terminal, Pencil, Plus, LogOut, ChevronDown, Menu, X } from "lucide-react";
 import { Button } from "./ui/button";
 import useAuth from "../hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
@@ -20,12 +20,17 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const mobileMenuRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setDropdownOpen(false);
+      }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(e.target)) {
+        setMobileMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -61,22 +66,32 @@ const Navbar = () => {
             transition={{ duration: 0.5 }}
             className="flex items-center gap-2"
           >
-            <Link to="/dashboard">
-              <Button
-                variant={location.pathname === "/dashboard" ? "default" : "ghost"}
-                size="sm"
-              >
-                Dashboard
-              </Button>
-            </Link>
-            <Link to="/leaderboard">
-              <Button
-                variant={location.pathname === "/leaderboard" ? "default" : "ghost"}
-                size="sm"
-              >
-                Leaderboard
-              </Button>
-            </Link>
+            <div className="hidden md:flex items-center gap-2">
+              <Link to="/dashboard">
+                <Button
+                  variant={location.pathname === "/dashboard" ? "default" : "ghost"}
+                  size="sm"
+                >
+                  Dashboard
+                </Button>
+              </Link>
+              <Link to="/leaderboard">
+                <Button
+                  variant={location.pathname === "/leaderboard" ? "default" : "ghost"}
+                  size="sm"
+                >
+                  Leaderboard
+                </Button>
+              </Link>
+            </div>
+
+            <button
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              className="md:hidden p-2 text-slate-300 hover:text-white transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
 
             {user && (
               <div className="relative" ref={dropdownRef}>
@@ -168,6 +183,46 @@ const Navbar = () => {
           </motion.div>
         </div>
       </nav>
+
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            ref={mobileMenuRef}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden border-b border-white/10 bg-white/5 backdrop-blur-xl overflow-hidden"
+          >
+            <div className="flex flex-col px-4 py-3 space-y-1">
+              <Link
+                to="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Button
+                  variant={location.pathname === "/dashboard" ? "default" : "ghost"}
+                  size="sm"
+                  className="w-full justify-start"
+                >
+                  Dashboard
+                </Button>
+              </Link>
+              <Link
+                to="/leaderboard"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Button
+                  variant={location.pathname === "/leaderboard" ? "default" : "ghost"}
+                  size="sm"
+                  className="w-full justify-start"
+                >
+                  Leaderboard
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AddAccountsModal
         isOpen={isModalOpen}
