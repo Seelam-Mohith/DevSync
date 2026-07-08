@@ -237,13 +237,7 @@ const LoginPage = () => {
             </Card>
           </motion.div>
 
-          {/* Demo credentials */}
-          <motion.div
-            variants={itemVariants}
-            className="rounded-lg border border-white/10 bg-white/5 backdrop-blur p-3 text-center text-xs text-slate-400"
-          >
-            Demo: test@example.com / password123
-          </motion.div>
+
         </motion.div>
       </motion.div>
       <footer className="absolute bottom-0 left-0 right-0 border-t border-white/10 bg-white/5 py-3">
