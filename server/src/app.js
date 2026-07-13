@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
@@ -11,6 +12,7 @@ const squadRoutes = require("./routes/squadRoutes");
 const { errorHandler, notFound } = require("./middleware/errorMiddleware");
 
 const app = express();
+const NODE_ENV = process.env.NODE_ENV || "development";
 
 // CORS Configuration - Allow frontend to communicate with backend
 const corsOptions = {
@@ -81,6 +83,22 @@ app.use("/api/leetcode", leetcodeRoutes);
 app.use("/api/github", githubRoutes);
 app.use("/api/squads", squadRoutes);
 // app.use("/api/codolio", codolioRoutes); // Disabled for Node.js 18 compatibility
+
+// Serve static files from client build in production
+if (NODE_ENV === "production") {
+  const clientDistPath = path.join(__dirname, "..", "..", "client", "dist");
+  app.use(express.static(clientDistPath));
+
+  // SPA fallback - serve index.html for all non-API routes (React Router support)
+  // Uses Express 5 named wildcard syntax; skips /api paths so notFound handles them
+  app.get("/{*splat}", (req, res, next) => {
+    if (req.path.startsWith("/api")) {
+      return next();
+    }
+    res.sendFile(path.join(clientDistPath, "index.html"));
+  });
+  console.log("[APP] Serving static files from:", clientDistPath);
+}
 
 // Error handling middleware (must be last)
 app.use(notFound);

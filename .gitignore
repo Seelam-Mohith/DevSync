@@ -1,7 +1,9 @@
+node_modules
 client/node_modules
 client/dist
 client/.env
 server/node_modules
 server/.env
+.vercel
 *.log
 PROJECT_DOCUMENTATION.md

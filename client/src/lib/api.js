@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// Determine API base URL
-const apiBaseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+// Determine API base URL - use relative path in production, env variable in development
+const apiBaseURL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 console.log("[API] Initializing axios client", {
   baseURL: apiBaseURL,
