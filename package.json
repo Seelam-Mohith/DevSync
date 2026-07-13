@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Developer Activity Tracker & Leaderboard",
   "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:client": "cd client && npm run dev",
