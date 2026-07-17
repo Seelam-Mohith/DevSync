@@ -1,0 +1,9 @@
+server/
+client/node_modules/
+.vercel/
+.vscode/
+*.md
+.git/
+.gitignore
+.node-version
+.npmrc
