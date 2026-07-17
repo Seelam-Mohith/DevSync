@@ -1,6 +1,3 @@
-const serverless = require("serverless-http");
-const express = require("express");
-const cors = require("cors");
 const { connectDB } = require("../../lib/db");
 
 const { register, login } = require("../../lib/controllers/authController");
@@ -20,86 +17,154 @@ const {
 } = require("../../lib/controllers/squadController");
 const { protect } = require("../../lib/middleware/auth");
 
-const app = express();
-app.use(cors());
-app.use(express.json({ limit: "10mb" }));
+function setCors(res, event) {
+  const origin = event.headers?.origin || "*";
+  res.headers = res.headers || {};
+  res.headers["Access-Control-Allow-Origin"] = origin;
+  res.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS";
+  res.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization";
+  res.headers["Access-Control-Allow-Credentials"] = "true";
+}
 
-app.use((req, res, next) => {
-  if (req.body && typeof req.body === "string") {
-    try { req.body = JSON.parse(req.body); } catch {}
-  }
-  if (!req.body && req.method !== "GET" && req.method !== "HEAD") {
-    let raw = "";
-    req.on("data", (c) => (raw += c));
-    req.on("end", () => {
-      try { req.body = raw ? JSON.parse(raw) : {}; } catch { req.body = {}; }
-      next();
-    });
-    return;
-  }
-  next();
-});
+function json(res, status, body) {
+  return {
+    statusCode: status,
+    headers: { ...res.headers, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  };
+}
 
-app.use((req, res, next) => {
-  if (req.url.startsWith("/.netlify/functions/api")) {
-    req.url = req.url.replace(/^\/\.netlify\/functions\/api/, "") || "/";
+function parseBody(event) {
+  if (!event.body) return {};
+  let raw = event.body;
+  if (event.isBase64Encoded) {
+    raw = Buffer.from(raw, "base64").toString("utf-8");
   }
-  next();
-});
+  if (typeof raw === "string") {
+    try { return JSON.parse(raw); } catch { return {}; }
+  }
+  return raw;
+}
 
-app.use(async (req, res, next) => {
+async function authGuard(event) {
+  const authHeader = event.headers?.authorization || event.headers?.Authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
+  const token = authHeader.split(" ")[1];
+  if (!token || !process.env.JWT_SECRET) return null;
+  const jwt = require("jsonwebtoken");
+  const User = require("../../lib/models/User");
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId).select("-password");
+    return user || null;
+  } catch {
+    return null;
+  }
+}
+
+function matchRoute(method, path, pattern, patternMethod) {
+  if (method !== patternMethod && patternMethod !== "*") return null;
+  const patternParts = pattern.split("/");
+  const pathParts = path.split("/");
+  if (patternParts.length !== pathParts.length) return null;
+  const params = {};
+  for (let i = 0; i < patternParts.length; i++) {
+    if (patternParts[i].startsWith(":")) {
+      params[patternParts[i].slice(1)] = pathParts[i];
+    } else if (patternParts[i] !== pathParts[i]) {
+      return null;
+    }
+  }
+  return params;
+}
+
+function makeReq(event, body) {
+  const path = event.path?.replace(/^\/\.netlify\/functions\/api/, "") || "/";
+  return {
+    headers: event.headers || {},
+    method: event.httpMethod,
+    url: path,
+    params: {},
+    body,
+    query: event.queryStringParameters || {},
+  };
+}
+
+const routes = [
+  ["POST", "/auth/register", false, register],
+  ["POST", "/auth/login", false, login],
+  ["GET", "/user/profile", true, getProfile],
+  ["PUT", "/user/profile", true, updateProfile],
+  ["GET", "/user/:id", true, getUserById],
+  ["GET", "/activity", true, getMyActivities],
+  ["GET", "/leaderboard", true, getLeaderboard],
+  ["GET", "/leetcode/:username", true, getLeetCodeStats],
+  ["GET", "/github/:username", true, getGitHubStats],
+  ["POST", "/squads", true, createSquad],
+  ["DELETE", "/squads", true, deleteSquad],
+  ["POST", "/squads/join", true, joinSquad],
+  ["GET", "/squads/my-squad", true, getUserSquad],
+  ["GET", "/squads/:id", true, getSquad],
+  ["GET", "/squads/:id/leaderboard", true, getSquadLeaderboard],
+  ["POST", "/squads/leave", true, leaveSquad],
+];
+
+exports.handler = async (event) => {
+  const corsRes = { headers: {} };
+  setCors(corsRes, event);
+
+  if (event.httpMethod === "OPTIONS") {
+    return { statusCode: 200, headers: corsRes.headers, body: "" };
+  }
+
+  const path = event.path?.replace(/^\/\.netlify\/functions\/api/, "") || "/";
+  const method = event.httpMethod;
+
+  if (path === "/health" && method === "GET") {
+    return json(corsRes, 200, { success: true, status: "ok", timestamp: new Date().toISOString() });
+  }
+
+  const body = parseBody(event);
+  const req = makeReq(event, body);
+
   try {
     await connectDB();
-    next();
-  } catch {
-    res.status(500).json({ success: false, message: "Database connection failed" });
+  } catch (err) {
+    return json(corsRes, 500, { success: false, message: "Database connection failed" });
   }
-});
 
-const auth = async (req, res, next) => {
-  try {
-    const user = await protect(req);
-    if (!user) return res.status(401).json({ success: false, message: "Not authorized" });
-    req.user = user;
-    next();
-  } catch {
-    res.status(401).json({ success: false, message: "Authentication failed" });
+  for (const [routeMethod, pattern, needsAuth, handler] of routes) {
+    const params = matchRoute(method, path, pattern, routeMethod);
+    if (params) {
+      req.params = params;
+      if (needsAuth) {
+        const user = await authGuard(event);
+        if (!user) return json(corsRes, 401, { success: false, message: "Not authorized" });
+        req.user = user;
+      }
+      try {
+        const result = await new Promise((resolve, reject) => {
+          const fakeRes = {
+            status: (s) => ({
+              json: (data) => resolve({ status: s, body: data }),
+              end: () => resolve({ status: s, body: "" }),
+            }),
+            json: (data) => resolve({ status: 200, body: data }),
+            end: () => resolve({ status: 200, body: "" }),
+          };
+          try {
+            const r = handler(req, fakeRes);
+            if (r && typeof r.then === "function") r.then(resolve).catch(reject);
+          } catch (e) {
+            reject(e);
+          }
+        });
+        return json(corsRes, result.status, result.body);
+      } catch (err) {
+        return json(corsRes, err.status || 500, { success: false, message: err.message || "Internal server error" });
+      }
+    }
   }
+
+  return json(corsRes, 404, { success: false, message: "Endpoint not found" });
 };
-
-app.post("/auth/register", register);
-app.post("/auth/login", login);
-
-app.get("/user/profile", auth, getProfile);
-app.put("/user/profile", auth, updateProfile);
-app.get("/user/:id", auth, getUserById);
-
-app.get("/activity", auth, getMyActivities);
-app.get("/leaderboard", auth, getLeaderboard);
-app.get("/leetcode/:username", auth, getLeetCodeStats);
-app.get("/github/:username", auth, getGitHubStats);
-
-app.post("/squads", auth, createSquad);
-app.delete("/squads", auth, deleteSquad);
-app.post("/squads/join", auth, joinSquad);
-app.get("/squads/my-squad", auth, getUserSquad);
-app.get("/squads/:id", auth, getSquad);
-app.get("/squads/:id/leaderboard", auth, getSquadLeaderboard);
-app.post("/squads/leave", auth, leaveSquad);
-
-app.get("/health", (req, res) => {
-  res.json({ success: true, status: "ok", timestamp: new Date().toISOString() });
-});
-
-app.post("/debug", (req, res) => {
-  res.json({ success: true, body: req.body, contentType: req.headers["content-type"] });
-});
-
-app.use((err, req, res, next) => {
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message || "Internal server error",
-  });
-});
-
-module.exports.handler = serverless(app);
