@@ -22,7 +22,23 @@ const { protect } = require("../../lib/middleware/auth");
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
+
+app.use((req, res, next) => {
+  if (req.body && typeof req.body === "string") {
+    try { req.body = JSON.parse(req.body); } catch {}
+  }
+  if (!req.body && req.method !== "GET" && req.method !== "HEAD") {
+    let raw = "";
+    req.on("data", (c) => (raw += c));
+    req.on("end", () => {
+      try { req.body = raw ? JSON.parse(raw) : {}; } catch { req.body = {}; }
+      next();
+    });
+    return;
+  }
+  next();
+});
 
 app.use((req, res, next) => {
   if (req.url.startsWith("/.netlify/functions/api")) {
@@ -73,6 +89,10 @@ app.post("/squads/leave", auth, leaveSquad);
 
 app.get("/health", (req, res) => {
   res.json({ success: true, status: "ok", timestamp: new Date().toISOString() });
+});
+
+app.post("/debug", (req, res) => {
+  res.json({ success: true, body: req.body, contentType: req.headers["content-type"] });
 });
 
 app.use((err, req, res, next) => {
