@@ -173,7 +173,7 @@ const LoginPage = () => {
                   {isRegister && (
                     <motion.div variants={itemVariants} className="space-y-2">
                       <p className="text-xs text-slate-400 text-center">Choose your avatar</p>
-                      <div className="grid grid-cols-8 gap-2">
+                      <div className="grid grid-cols-6 gap-2 sm:grid-cols-8">
                         {avatarSeeds.map((seed) => (
                           <motion.button
                             key={seed}

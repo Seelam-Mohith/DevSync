@@ -113,34 +113,34 @@ const LeaderboardPage = () => {
       <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-6 sm:px-6">
         <SquadPanel squad={squad} onSquadChange={handleSquadChange} />
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           {squad && (
             <div className="inline-flex rounded-xl border border-white/10 bg-white/5 p-1 backdrop-blur-sm">
               <button
                 onClick={() => setView("global")}
-                className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 sm:px-4 sm:py-2 sm:text-sm ${
                   view === "global"
                     ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/20"
                     : "text-slate-400 hover:text-white"
                 }`}
               >
-                <Globe size={16} />
+                <Globe size={14} className="sm:hidden md:block" />
                 Global
               </button>
               <button
                 onClick={() => setView("squad")}
-                className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 sm:px-4 sm:py-2 sm:text-sm ${
                   view === "squad"
                     ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/20"
                     : "text-slate-400 hover:text-white"
                 }`}
               >
-                <Users size={16} />
+                <Users size={14} className="sm:hidden md:block" />
                 Squad
               </button>
             </div>
           )}
-          <div className="ml-auto flex items-center gap-2 text-xs text-slate-400">
+          <div className="flex items-center gap-2 text-xs text-slate-400">
             <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 p-0.5">
               <button
                 onClick={() => handleWeekChange(weekOffset - 1)}

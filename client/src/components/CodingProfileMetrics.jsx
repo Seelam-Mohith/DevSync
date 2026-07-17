@@ -204,7 +204,7 @@ const CodingProfileMetrics = ({
             {hasSubmissions ? (
               <div className="space-y-4">
                 {/* Day of week headers */}
-                <div className="grid grid-cols-7 gap-2">
+                <div className="grid grid-cols-7 gap-1 sm:gap-2">
                   {dayNames.map((day) => (
                     <div key={day} className="h-6 text-center text-xs font-semibold text-muted-foreground">
                       {day}
@@ -213,7 +213,7 @@ const CodingProfileMetrics = ({
                 </div>
 
                 {/* Calendar grid */}
-                <div className="grid grid-cols-7 gap-2">
+                <div className="grid grid-cols-7 gap-1 sm:gap-2">
                   {monthDays.map((cell, index) => (
                     <motion.div
                       key={index}
@@ -225,14 +225,14 @@ const CodingProfileMetrics = ({
                           title={`${cell.date}: ${cell.intensity} ${
                             cell.intensity === 1 ? "submission" : "submissions"
                           }`}
-                          className={`relative h-10 rounded-lg transition-all duration-200 flex items-center justify-center text-xs font-medium cursor-pointer ${bucketColor(
+                          className={`relative h-8 rounded-lg transition-all duration-200 flex items-center justify-center text-xs font-medium cursor-pointer sm:h-10 ${bucketColor(
                             cell.intensity
                           )}`}
                         >
                           <span className="text-foreground/80 font-semibold">{cell.day}</span>
                         </div>
                       ) : (
-                        <div className="h-10" />
+                        <div className="h-8 sm:h-10" />
                       )}
                     </motion.div>
                   ))}

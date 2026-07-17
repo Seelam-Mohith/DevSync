@@ -56,11 +56,7 @@ body::before {
   @apply backdrop-blur-xl bg-white/5 border border-white/10;
 }
 
-/* Smooth transitions */
-* {
-  @apply transition-all duration-300 ease-out;
-}
-
+/* Smooth transitions for interactive elements only */
 button, a {
   @apply transition-all duration-200 ease-out;
 }

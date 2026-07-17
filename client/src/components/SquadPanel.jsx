@@ -49,7 +49,7 @@ const SquadPanel = ({ squad, onSquadChange }) => {
     return (
       <Card>
         <CardContent className="p-5">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/20">
                 <Users size={20} className="text-blue-400" />
@@ -66,14 +66,14 @@ const SquadPanel = ({ squad, onSquadChange }) => {
             <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={copyCode}
-                className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 transition-colors hover:bg-white/10"
+                className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-slate-300 transition-colors hover:bg-white/10 sm:px-3"
               >
                 {copied ? (
                   <Check size={14} className="text-green-400" />
                 ) : (
                   <Copy size={14} />
                 )}
-                {copied ? "Copied!" : squad.inviteCode}
+                <span className="max-w-[80px] truncate sm:max-w-none">{copied ? "Copied!" : squad.inviteCode}</span>
               </button>
 
               <Button
@@ -121,7 +121,7 @@ const SquadPanel = ({ squad, onSquadChange }) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <button
               onClick={() => setShowCreate(true)}
               className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-blue-600/20 to-blue-700/10 p-5 text-left transition-all duration-300 hover:border-blue-500/40 hover:from-blue-600/30 hover:shadow-lg hover:shadow-blue-500/10"

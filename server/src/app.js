@@ -16,7 +16,7 @@ const NODE_ENV = process.env.NODE_ENV || "development";
 
 // CORS Configuration - Allow frontend to communicate with backend
 const corsOptions = {
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  origin: process.env.CLIENT_URL || ["http://localhost:5173", "http://localhost:5174"],
   credentials: true, // Allow cookies and authorization headers
   methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
