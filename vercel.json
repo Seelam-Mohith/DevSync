@@ -1,7 +1,7 @@
 {
-  "buildCommand": "cd client && npm install && npm run build",
+  "installCommand": "npm install --no-fund --no-audit",
+  "buildCommand": "cd client && npm install --no-fund --no-audit && npm run build",
   "outputDirectory": "client/dist",
-  "installCommand": "npm install",
   "framework": null,
   "rewrites": [
     {
