@@ -152,6 +152,7 @@ npm run dev
 
 * GitHub integration
 * LeetCode API synchronization
+* Multi Platform Integration
 * Social authentication
 * Profile customization
 * Real-time notifications
