@@ -79,7 +79,8 @@ function matchRoute(method, path, pattern, patternMethod) {
 }
 
 function makeReq(event, body) {
-  const path = event.path?.replace(/^\/\.netlify\/functions\/api/, "") || "/";
+  let path = event.path || "/";
+  path = path.replace(/^\/\.netlify\/functions\/api/, "").replace(/^\/api/, "") || "/";
   return {
     headers: event.headers || {},
     method: event.httpMethod,
@@ -119,7 +120,8 @@ exports.handler = async (event) => {
     return { statusCode: 200, headers: corsRes.headers, body: "" };
   }
 
-  const path = event.path?.replace(/^\/\.netlify\/functions\/api/, "") || "/";
+  let path = event.path || "/";
+  path = path.replace(/^\/\.netlify\/functions\/api/, "").replace(/^\/api/, "") || "/";
   const method = event.httpMethod;
 
   if (path === "/health" && method === "GET") {
