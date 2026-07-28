@@ -192,11 +192,8 @@ const githubAuth = (req, res) => {
     return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/login?error=GitHub OAuth not configured`);
   }
 
-  const redirectUri = getRedirectUri(req);
-
   const params = new URLSearchParams({
     client_id: GITHUB_CLIENT_ID,
-    redirect_uri: redirectUri,
     scope: "read:user user:email",
   });
 
@@ -215,7 +212,6 @@ const githubCallback = async (req, res, next) => {
     } = process.env;
 
     const clientUrl = CLIENT_URL || "http://localhost:5173";
-    const redirectUri = getRedirectUri(req);
 
     if (!code) {
       return res.redirect(`${clientUrl}/login?error=No authorization code received`);
@@ -234,7 +230,6 @@ const githubCallback = async (req, res, next) => {
         client_id: GITHUB_CLIENT_ID,
         client_secret: GITHUB_CLIENT_SECRET,
         code,
-        redirect_uri: redirectUri,
       },
       {
         headers: { Accept: "application/json" },
