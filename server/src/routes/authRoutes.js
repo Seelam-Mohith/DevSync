@@ -1,5 +1,5 @@
 const express = require("express");
-const { login, register } = require("../controllers/authController");
+const { login, register, githubAuth, githubCallback } = require("../controllers/authController");
 
 const router = express.Router();
 
@@ -15,6 +15,18 @@ router.post("/register", (req, res, next) => {
 router.post("/login", (req, res, next) => {
   console.log("[AUTH] POST /login", { body: Object.keys(req.body) });
   login(req, res, next);
+});
+
+// GET /api/auth/github — initiate GitHub OAuth
+router.get("/github", (req, res) => {
+  console.log("[AUTH] GET /auth/github");
+  githubAuth(req, res);
+});
+
+// GET /api/auth/github/callback — handle GitHub OAuth callback
+router.get("/github/callback", (req, res, next) => {
+  console.log("[AUTH] GET /auth/github/callback", { hasCode: !!req.query.code });
+  githubCallback(req, res, next);
 });
 
 module.exports = router;

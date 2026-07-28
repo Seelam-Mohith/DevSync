@@ -1,6 +1,6 @@
 const { connectDB } = require("../../lib/db");
 
-const { register, login } = require("../../lib/controllers/authController");
+const { register, login, githubAuth, githubCallback } = require("../../lib/controllers/authController");
 const { getProfile, updateProfile, getUserById } = require("../../lib/controllers/userController");
 const { getMyActivities } = require("../../lib/controllers/activityController");
 const { getLeaderboard } = require("../../lib/controllers/leaderboardController");
@@ -93,6 +93,8 @@ function makeReq(event, body) {
 const routes = [
   ["POST", "/auth/register", false, register],
   ["POST", "/auth/login", false, login],
+  ["GET", "/auth/github", false, githubAuth],
+  ["GET", "/auth/github/callback", false, githubCallback],
   ["GET", "/user/profile", true, getProfile],
   ["PUT", "/user/profile", true, updateProfile],
   ["GET", "/user/:id", true, getUserById],
@@ -146,11 +148,13 @@ exports.handler = async (event) => {
         const result = await new Promise((resolve, reject) => {
           const fakeRes = {
             status: (s) => ({
-              json: (data) => resolve({ status: s, body: data }),
-              end: () => resolve({ status: s, body: "" }),
+              json: (data) => resolve({ type: "json", status: s, body: data }),
+              end: () => resolve({ type: "json", status: s, body: "" }),
+              redirect: (url) => resolve({ type: "redirect", status: s, url }),
             }),
-            json: (data) => resolve({ status: 200, body: data }),
-            end: () => resolve({ status: 200, body: "" }),
+            json: (data) => resolve({ type: "json", status: 200, body: data }),
+            redirect: (url) => resolve({ type: "redirect", status: 302, url }),
+            end: () => resolve({ type: "json", status: 200, body: "" }),
           };
           try {
             const r = handler(req, fakeRes);
@@ -159,6 +163,13 @@ exports.handler = async (event) => {
             reject(e);
           }
         });
+        if (result.type === "redirect") {
+          return {
+            statusCode: result.status,
+            headers: { ...corsRes.headers, Location: result.url },
+            body: "",
+          };
+        }
         return json(corsRes, result.status, result.body);
       } catch (err) {
         return json(corsRes, err.status || 500, { success: false, message: err.message || "Internal server error" });

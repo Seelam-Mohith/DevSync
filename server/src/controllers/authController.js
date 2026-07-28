@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const axios = require("axios");
 const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
 
@@ -120,6 +121,13 @@ const login = async (req, res, next) => {
     }
     console.log("[AUTH] User found", { userId: user._id });
 
+    if (!user.password) {
+      console.log("[AUTH] Login failed: Account uses GitHub OAuth", { email });
+      const error = new Error("This account uses GitHub OAuth. Please sign in with GitHub.");
+      error.status = 401;
+      throw error;
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       console.log("[AUTH] Login failed: Password mismatch", { email });
@@ -171,9 +179,172 @@ const login = async (req, res, next) => {
   }
 };
 
+const getRedirectUri = (req) => {
+  if (process.env.GITHUB_CALLBACK_URL) return process.env.GITHUB_CALLBACK_URL;
+  return `${req.protocol}://${req.get("host")}/api/auth/github/callback`;
+};
+
+const githubAuth = (req, res) => {
+  const { GITHUB_CLIENT_ID } = process.env;
+
+  if (!GITHUB_CLIENT_ID) {
+    console.error("[GITHUB_OAUTH] GITHUB_CLIENT_ID not configured");
+    return res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/login?error=GitHub OAuth not configured`);
+  }
+
+  const redirectUri = getRedirectUri(req);
+
+  const params = new URLSearchParams({
+    client_id: GITHUB_CLIENT_ID,
+    redirect_uri: redirectUri,
+    scope: "read:user user:email",
+  });
+
+  const url = `https://github.com/login/oauth/authorize?${params.toString()}`;
+  console.log("[GITHUB_OAUTH] Redirecting to GitHub:", url);
+  res.redirect(url);
+};
+
+const githubCallback = async (req, res, next) => {
+  try {
+    const { code } = req.query;
+    const {
+      GITHUB_CLIENT_ID,
+      GITHUB_CLIENT_SECRET,
+      CLIENT_URL,
+    } = process.env;
+
+    const clientUrl = CLIENT_URL || "http://localhost:5173";
+    const redirectUri = getRedirectUri(req);
+
+    if (!code) {
+      return res.redirect(`${clientUrl}/login?error=No authorization code received`);
+    }
+
+    if (!GITHUB_CLIENT_ID || !GITHUB_CLIENT_SECRET) {
+      console.error("[GITHUB_OAUTH] GitHub OAuth not configured");
+      return res.redirect(`${clientUrl}/login?error=GitHub OAuth not configured`);
+    }
+
+    // Exchange code for access token
+    console.log("[GITHUB_OAUTH] Exchanging code for access token");
+    const tokenResponse = await axios.post(
+      "https://github.com/login/oauth/access_token",
+      {
+        client_id: GITHUB_CLIENT_ID,
+        client_secret: GITHUB_CLIENT_SECRET,
+        code,
+        redirect_uri: redirectUri,
+      },
+      {
+        headers: { Accept: "application/json" },
+        timeout: 10000,
+      }
+    );
+
+    const accessToken = tokenResponse.data.access_token;
+
+    if (!accessToken) {
+      console.error("[GITHUB_OAUTH] Failed to get access token:", tokenResponse.data);
+      return res.redirect(`${clientUrl}/login?error=Failed to authenticate with GitHub`);
+    }
+
+    console.log("[GITHUB_OAUTH] Access token received");
+
+    // Fetch GitHub user profile
+    console.log("[GITHUB_OAUTH] Fetching user profile");
+    const profileResponse = await axios.get("https://api.github.com/user", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      timeout: 10000,
+    });
+
+    const { id: githubId, login, name: githubName, avatar_url } = profileResponse.data;
+    console.log("[GITHUB_OAUTH] Profile fetched:", { githubId, login });
+
+    // Fetch primary verified email
+    console.log("[GITHUB_OAUTH] Fetching emails");
+    const emailsResponse = await axios.get("https://api.github.com/user/emails", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      timeout: 10000,
+    });
+
+    const primaryEmail = emailsResponse.data.find(
+      (e) => e.primary && e.verified
+    );
+    const email = primaryEmail ? primaryEmail.email : null;
+
+    if (!email) {
+      console.error("[GITHUB_OAUTH] No verified primary email found");
+      return res.redirect(
+        `${clientUrl}/login?error=No verified primary email found on GitHub. Make sure your email is verified.`
+      );
+    }
+
+    // Check if user with this email already exists
+    let user = await User.findOne({ email });
+
+    if (user) {
+      // Existing user — link GitHub if not already linked
+      console.log("[GITHUB_OAUTH] Existing user found:", { userId: user._id });
+
+      if (user.provider === "local" && !user.githubId) {
+        user.githubId = String(githubId);
+        user.provider = "local"; // keep as local since they registered with email/password
+        if (!user.githubUsername) {
+          user.githubUsername = login;
+        }
+        await user.save();
+        console.log("[GITHUB_OAUTH] GitHub account linked to existing user");
+      } else if (user.githubId && user.githubId !== String(githubId)) {
+        console.warn("[GITHUB_OAUTH] GitHub ID mismatch for existing user");
+      }
+    } else {
+      // New user — create with GitHub data
+      console.log("[GITHUB_OAUTH] Creating new user from GitHub data");
+
+      const displayName = githubName || login;
+
+      // Generate a unique username from GitHub login
+      let username = login;
+      let counter = 1;
+      while (await User.findOne({ username })) {
+        username = `${login}_${counter}`;
+        counter++;
+      }
+
+      user = await User.create({
+        name: displayName,
+        email,
+        avatar: avatar_url,
+        githubId: String(githubId),
+        githubUsername: login,
+        githubName: displayName,
+        githubAvatarUrl: avatar_url,
+        githubProfileUrl: `https://github.com/${login}`,
+        username,
+        provider: "github",
+        password: undefined,
+      });
+      console.log("[GITHUB_OAUTH] New user created:", { userId: user._id });
+    }
+
+    const token = generateToken(user._id);
+    console.log("[GITHUB_OAUTH] Token generated, redirecting to frontend");
+
+    // Redirect to frontend with token
+    res.redirect(`${clientUrl}/github-callback?token=${token}`);
+  } catch (error) {
+    console.error("[GITHUB_OAUTH] Callback error:", error.message);
+    const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+    res.redirect(`${clientUrl}/login?error=GitHub authentication failed`);
+  }
+};
+
 module.exports = {
   register,
   login,
+  githubAuth,
+  githubCallback,
   validateEmail,
   validatePassword,
 };

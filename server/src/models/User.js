@@ -24,13 +24,14 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
       minlength: 6,
     },
     avatar: {
       type: String,
       default: "Aria",
     },
+    githubId: { type: String, default: null },
+    provider: { type: String, enum: ["local", "github"], default: "local" },
 
     // Linked account usernames
     leetcodeUsername: { type: String, default: "" },
