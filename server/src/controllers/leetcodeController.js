@@ -149,7 +149,7 @@ const getLeetCodeStats = async (req, res) => {
         monday.setUTCDate(monday.getUTCDate() - diff);
         const currentMonday = monday.toISOString().split("T")[0];
 
-        if (user.weekSnapshotDate !== currentMonday) {
+        if (user.weekSnapshotDate !== currentMonday && day === 1) {
           user.totalSolvedAtWeekStart = totalSolved;
           user.weekSnapshotDate = currentMonday;
         }
