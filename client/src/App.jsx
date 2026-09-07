@@ -3,6 +3,7 @@ import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import UserProfilePage from "./pages/UserProfilePage";
+import InvitePage from "./pages/InvitePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import GitHubCallback from "./components/GitHubCallback";
 
@@ -27,6 +28,7 @@ const App = () => {
           </ProtectedRoute>
         }
       />
+      <Route path="/invite/:code" element={<InvitePage />} />
       <Route
         path="/profile/:userId"
         element={

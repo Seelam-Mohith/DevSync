@@ -74,7 +74,8 @@ const LoginPage = () => {
       }
 
       console.log("[LOGIN] Success, navigating to dashboard");
-      navigate("/dashboard");
+      const inviteCode = searchParams.get("invite");
+      navigate(inviteCode ? `/invite/${inviteCode}` : "/dashboard");
     } catch (requestError) {
       const errorMessage =
         requestError?.response?.data?.message ||
