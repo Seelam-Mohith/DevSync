@@ -82,6 +82,31 @@ const getSquad = async (req, res, next) => {
   }
 };
 
+const getSquadByInvite = async (req, res, next) => {
+  try {
+    const { code } = req.params;
+    const squad = await Squad.findOne({ inviteCode: (code || "").toUpperCase() })
+      .populate("leader", "name email avatar");
+
+    if (!squad) {
+      return res.status(404).json({ message: "Invalid invite code" });
+    }
+
+    res.status(200).json({
+      squad: {
+        _id: squad._id,
+        name: squad.name,
+        inviteCode: squad.inviteCode,
+        leader: squad.leader,
+        memberCount: squad.members.length,
+        members: squad.members,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getUserSquad = async (req, res, next) => {
   try {
     const userId = req.user._id;
@@ -209,6 +234,7 @@ module.exports = {
   createSquad,
   joinSquad,
   getSquad,
+  getSquadByInvite,
   getUserSquad,
   getSquadLeaderboard,
   leaveSquad,

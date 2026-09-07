@@ -3,6 +3,7 @@ const {
   createSquad,
   joinSquad,
   getSquad,
+  getSquadByInvite,
   getUserSquad,
   getSquadLeaderboard,
   leaveSquad,
@@ -15,6 +16,7 @@ const router = express.Router();
 router.post("/", protect, createSquad);
 router.post("/join", protect, joinSquad);
 router.get("/my-squad", protect, getUserSquad);
+router.get("/invite/:code", protect, getSquadByInvite);
 router.get("/:id", protect, getSquad);
 router.get("/:id/leaderboard", protect, getSquadLeaderboard);
 router.post("/leave", protect, leaveSquad);
