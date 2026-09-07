@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
-import { Users, Plus, LogIn, Copy, Check, LogOut, Trash2, Loader2 } from "lucide-react";
+import { Users, Plus, LogIn, Copy, Check, LogOut, Trash2, Loader2, Link2 } from "lucide-react";
 import CreateSquadModal from "./CreateSquadModal";
 import JoinSquadModal from "./JoinSquadModal";
 import useAuth from "../hooks/useAuth";
@@ -12,6 +12,7 @@ const SquadPanel = ({ squad, onSquadChange }) => {
   const [showCreate, setShowCreate] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -21,6 +22,12 @@ const SquadPanel = ({ squad, onSquadChange }) => {
     navigator.clipboard.writeText(squad.inviteCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const copyInviteLink = () => {
+    navigator.clipboard.writeText(`${window.location.origin}/invite/${squad.inviteCode}`);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
   };
 
   const handleLeave = async () => {
@@ -74,6 +81,19 @@ const SquadPanel = ({ squad, onSquadChange }) => {
                   <Copy size={14} />
                 )}
                 <span className="max-w-[80px] truncate sm:max-w-none">{copied ? "Copied!" : squad.inviteCode}</span>
+              </button>
+
+              <button
+                onClick={copyInviteLink}
+                className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-slate-300 transition-colors hover:bg-white/10 sm:px-3"
+                title="Copy invite link"
+              >
+                {copiedLink ? (
+                  <Check size={14} className="text-green-400" />
+                ) : (
+                  <Link2 size={14} />
+                )}
+                <span className="hidden sm:inline">{copiedLink ? "Link copied!" : "Invite Link"}</span>
               </button>
 
               <Button
