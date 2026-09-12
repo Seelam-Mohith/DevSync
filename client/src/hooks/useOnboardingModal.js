@@ -21,7 +21,7 @@ const useOnboardingModal = () => {
 
     if (user && user.showOnboarding === false) return;
 
-    const timer = setTimeout(() => setIsOpen(true), 600);
+    const timer = setTimeout(() => setIsOpen(true), 500);
     return () => clearTimeout(timer);
   }, [user]);
 
